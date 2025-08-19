@@ -27,12 +27,9 @@ export default function DashboardLayout({
   const menuItems = [
     { href: '/dashboard', icon: Home, label: 'ダッシュボード' },
     { href: '/dashboard/lessons', icon: BookOpen, label: 'レッスン管理' },
-    { href: '/dashboard/courses', icon: GraduationCap, label: 'コース管理' },
+    { href: '/dashboard/courses', icon: GraduationCap, label: 'カリキュラム管理' },
     { href: '/dashboard/users', icon: Users, label: 'ユーザー管理' },
     { href: '/dashboard/ai-settings', icon: Sparkles, label: 'AI設定' },
-    { href: '/dashboard/quick-create', icon: Zap, label: 'クイック作成' },
-    { href: '/dashboard/quick-create-simple', icon: Zap, label: 'シンプル作成' },
-    { href: '/dashboard/structure-alignment', icon: AlignLeft, label: '構造調整' },
   ]
 
   return (

@@ -9,7 +9,8 @@ export default function DashboardPage() {
     totalLessons: 0,
     totalCurriculums: 0,
     activeLessons: 0,
-    activeCurriculums: 0
+    activeCurriculums: 0,
+    totalUsers: 0
   })
   const [loading, setLoading] = useState(true)
 
@@ -43,11 +44,17 @@ export default function DashboardPage() {
         .select('*', { count: 'exact', head: true })
         .eq('is_active', true)
       
+      // ユーザー数を取得（users テーブルを確認）
+      const { count: totalUsers } = await supabase
+        .from('users')
+        .select('*', { count: 'exact', head: true })
+      
       setStats({
         totalLessons: totalLessons || 0,
         totalCurriculums: totalCurriculums || 0,
         activeLessons: activeLessons || 0,
-        activeCurriculums: activeCurriculums || 0
+        activeCurriculums: activeCurriculums || 0,
+        totalUsers: totalUsers || 0
       })
     } catch (error) {
       console.error('Error fetching stats:', error)
@@ -68,7 +75,7 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <h1 className="text-3xl font-bold text-gray-900">ダッシュボード</h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-sm font-medium text-gray-500 mb-2">総レッスン数</h3>
           <p className="text-3xl font-bold text-gray-900">{stats.totalLessons}</p>
@@ -79,6 +86,11 @@ export default function DashboardPage() {
           <h3 className="text-sm font-medium text-gray-500 mb-2">総カリキュラム数</h3>
           <p className="text-3xl font-bold text-gray-900">{stats.totalCurriculums}</p>
           <p className="text-xs text-gray-500 mt-1">アクティブ: {stats.activeCurriculums}</p>
+        </div>
+        
+        <div className="bg-white rounded-lg shadow p-6">
+          <h3 className="text-sm font-medium text-gray-500 mb-2">総ユーザー数</h3>
+          <p className="text-3xl font-bold text-gray-900">{stats.totalUsers}</p>
         </div>
         
         <div className="bg-white rounded-lg shadow p-6">
