@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Save, Loader2 } from 'lucide-react'
 import { createClient } from '../../../../lib/supabase'
 
-export default function NewLessonPage() {
+function NewLessonForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const moduleId = searchParams.get('module_id')
@@ -165,5 +165,13 @@ export default function NewLessonPage() {
         </form>
       </div>
     </div>
+  )
+}
+
+export default function NewLessonPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-pink-600" /></div>}>
+      <NewLessonForm />
+    </Suspense>
   )
 }
