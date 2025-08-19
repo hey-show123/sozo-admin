@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Save, Loader2 } from 'lucide-react'
+import { ArrowLeft, Save, Loader2, Upload, X, Image } from 'lucide-react'
 import { createClient } from '../../../../../lib/supabase'
 
 interface Curriculum {
@@ -32,6 +32,9 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
     prerequisites: [] as string[],
     is_active: false
   })
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [uploadingImage, setUploadingImage] = useState(false)
 
   useEffect(() => {
     fetchCurriculum()
@@ -58,11 +61,51 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
         prerequisites: data.prerequisites || [],
         is_active: data.is_active || false
       })
+      
+      // 既存の画像URLをプレビューに設定
+      if (data.image_url) {
+        setImagePreview(data.image_url)
+      }
     } catch (error) {
       console.error('Error fetching curriculum:', error)
       alert('カリキュラムの取得に失敗しました')
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function handleImageUpload() {
+    if (!imageFile) return formData.image_url
+
+    setUploadingImage(true)
+    try {
+      const supabase = createClient()
+      const fileExt = imageFile.name.split('.').pop()
+      const fileName = `${id}-${Date.now()}.${fileExt}`
+      const filePath = `curriculum-images/${fileName}`
+
+      // 画像をアップロード
+      const { error: uploadError } = await supabase.storage
+        .from('curriculum-images')
+        .upload(filePath, imageFile, {
+          cacheControl: '3600',
+          upsert: true
+        })
+
+      if (uploadError) throw uploadError
+
+      // パブリックURLを取得
+      const { data: { publicUrl } } = supabase.storage
+        .from('curriculum-images')
+        .getPublicUrl(filePath)
+
+      return publicUrl
+    } catch (error) {
+      console.error('Error uploading image:', error)
+      alert('画像のアップロードに失敗しました')
+      return formData.image_url
+    } finally {
+      setUploadingImage(false)
     }
   }
 
@@ -72,6 +115,13 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
 
     try {
       const supabase = createClient()
+      
+      // 画像をアップロード（新しい画像が選択されている場合）
+      let imageUrl = formData.image_url
+      if (imageFile) {
+        imageUrl = await handleImageUpload()
+      }
+
       const { error } = await supabase
         .from('curriculums')
         .update({
@@ -79,7 +129,7 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
           description: formData.description || null,
           difficulty_level: formData.difficulty_level,
           category: formData.category,
-          image_url: formData.image_url || null,
+          image_url: imageUrl || null,
           prerequisites: formData.prerequisites.length > 0 ? formData.prerequisites : null,
           is_active: formData.is_active,
           updated_at: new Date().toISOString()
@@ -96,6 +146,38 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
     } finally {
       setSaving(false)
     }
+  }
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // ファイルタイプの検証
+      if (!file.type.startsWith('image/')) {
+        alert('画像ファイルを選択してください')
+        return
+      }
+      
+      // ファイルサイズの検証（5MB以下）
+      if (file.size > 5 * 1024 * 1024) {
+        alert('画像サイズは5MB以下にしてください')
+        return
+      }
+
+      setImageFile(file)
+      
+      // プレビュー用のURLを生成
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const removeImage = () => {
+    setImageFile(null)
+    setImagePreview(null)
+    setFormData({ ...formData, image_url: '' })
   }
 
   const handlePrerequisitesChange = (value: string) => {
@@ -197,17 +279,59 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
           </div>
 
           <div>
-            <label htmlFor="image_url" className="block text-sm font-medium text-gray-700 mb-2">
-              画像URL
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              カリキュラム画像
             </label>
-            <input
-              type="url"
-              id="image_url"
-              value={formData.image_url}
-              onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="https://example.com/image.jpg"
-            />
+            
+            {/* 画像プレビュー */}
+            {imagePreview && (
+              <div className="mb-4 relative">
+                <img 
+                  src={imagePreview} 
+                  alt="Preview" 
+                  className="w-full max-w-md h-48 object-cover rounded-lg border border-gray-300"
+                />
+                <button
+                  type="button"
+                  onClick={removeImage}
+                  className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+
+            {/* ファイル選択 */}
+            <div className="flex items-center space-x-4">
+              <label className="cursor-pointer">
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/jpg,image/webp"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+                <div className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                  <Upload className="h-5 w-5 mr-2 text-gray-600" />
+                  <span className="text-sm text-gray-700">
+                    {imageFile ? imageFile.name : '画像を選択'}
+                  </span>
+                </div>
+              </label>
+              
+              {!imagePreview && (
+                <div className="flex items-center text-sm text-gray-500">
+                  <Image className="h-4 w-4 mr-1" />
+                  PNG, JPG, WEBP (最大5MB)
+                </div>
+              )}
+            </div>
+
+            {uploadingImage && (
+              <div className="mt-2 text-sm text-gray-600">
+                <Loader2 className="h-4 w-4 animate-spin inline mr-2" />
+                画像をアップロード中...
+              </div>
+            )}
           </div>
 
           <div>
