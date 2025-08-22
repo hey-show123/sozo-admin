@@ -549,7 +549,7 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
                 <div className="space-y-4">
                   {formData.dialogues.map((dialogue, index) => (
                     <div key={index} className="border rounded-lg p-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                         <input
                           type="text"
                           placeholder="話者 (Staff/Customer等)"
@@ -557,16 +557,22 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
                           onChange={(e) => updateDialogue(index, 'speaker', e.target.value)}
                           className="px-3 py-2 border border-gray-300 rounded-lg"
                         />
-                        <select
-                          value={dialogue.emotion || 'neutral'}
-                          onChange={(e) => updateDialogue(index, 'emotion', e.target.value)}
-                          className="px-3 py-2 border border-gray-300 rounded-lg"
-                        >
-                          <option value="friendly">friendly</option>
-                          <option value="polite">polite</option>
-                          <option value="neutral">neutral</option>
-                          <option value="excited">excited</option>
-                        </select>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            placeholder="感情表現 (例: friendly, excited)"
+                            value={dialogue.emotion || ''}
+                            onChange={(e) => updateDialogue(index, 'emotion', e.target.value)}
+                            className="px-3 py-2 border border-gray-300 rounded-lg w-full"
+                            title="英語で感情を記述: friendly, polite, happy, excited, calm, professional等"
+                          />
+                          <div className="absolute -bottom-5 left-0 text-xs text-gray-500">
+                            <a href="/docs/EMOTION_GUIDELINES.md" target="_blank" className="underline hover:text-blue-600">
+                              感情表現ガイド
+                            </a>
+                            : friendly, polite, happy, excited等
+                          </div>
+                        </div>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
                         <textarea
