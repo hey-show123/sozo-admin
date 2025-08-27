@@ -861,67 +861,205 @@ export default function LessonEditor({
 
           {activeTab === 'ai_settings' && (
             <div className="space-y-6">
-              <div>
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">🤖 AIキャラクター設定</h3>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  AI会話システムプロンプト
+                  AIの性格・役割設定プロンプト
                 </label>
                 <textarea
                   value={formData.ai_conversation_system_prompt || ''}
                   onChange={(e) => updateField('ai_conversation_system_prompt', e.target.value)}
                   rows={6}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="AI会話のシステムプロンプトを入力"
+                  placeholder="例: あなたは美容室の常連客です。フレンドリーで話し好きな性格で、スタッフとの会話を楽しみにしています。今日は髪をカットしてもらいに来ました。"
                 />
-                <p className="mt-1 text-sm text-gray-500">
-                  このプロンプトはAI会話練習時にAIの振る舞いを制御します
+                <p className="mt-2 text-sm text-gray-600">
+                  <strong>用途：</strong>AI会話練習でAIが演じるキャラクターの性格、職業、状況を詳しく設定します。
+                </p>
+                <p className="mt-1 text-sm text-gray-600">
+                  <strong>影響：</strong>このプロンプトによってAIの話し方、態度、会話の内容が決まります。
                 </p>
               </div>
 
-              <div>
+              <div className="bg-green-50 p-4 rounded-lg border border-green-200 mt-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">📱 アプリ表示設定</h3>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  AI会話表示名
+                  シナリオタイトル（アプリに表示）
                 </label>
                 <input
                   type="text"
                   value={formData.ai_conversation_display_name || ''}
                   onChange={(e) => updateField('ai_conversation_display_name', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="例: カフェの店員"
+                  placeholder="例: カフェでの注文"
                 />
+                <p className="mt-1 text-sm text-gray-600">
+                  <strong>表示場所：</strong>準備画面のタイトル部分に表示されます
+                </p>
               </div>
 
-              <div>
+              <div className="mt-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  AI会話説明
+                  シナリオ説明文（アプリに表示）
                 </label>
                 <textarea
                   value={formData.ai_conversation_display_description || ''}
                   onChange={(e) => updateField('ai_conversation_display_description', e.target.value)}
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="例: カフェで注文する練習をしましょう"
+                  placeholder="例: カフェで飲み物を注文する練習です。店員さんに挨拶をして、メニューを聞いて、好きな飲み物を注文してみましょう。"
                 />
+                <p className="mt-1 text-sm text-gray-600">
+                  <strong>表示場所：</strong>準備画面の説明部分に表示され、学習者がどんな練習をするのか理解できるようにします
+                </p>
               </div>
 
-              <div>
+              <div className="bg-purple-50 p-4 rounded-lg border border-purple-200 mt-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">🔊 音声設定</h3>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  AI会話音声モデル
+                  AI音声モデル
                 </label>
                 <select
                   value={formData.ai_conversation_voice_model || 'nova'}
                   onChange={(e) => updateField('ai_conversation_voice_model', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="nova">Nova (デフォルト)</option>
-                  <option value="fable">Fable</option>
-                  <option value="onyx">Onyx</option>
-                  <option value="shimmer">Shimmer</option>
-                  <option value="echo">Echo</option>
-                  <option value="alloy">Alloy</option>
+                  <option value="nova">Nova - 若い女性の声（デフォルト）</option>
+                  <option value="fable">Fable - イギリス英語の男性</option>
+                  <option value="onyx">Onyx - 深みのある男性の声</option>
+                  <option value="shimmer">Shimmer - エネルギッシュな女性の声</option>
+                  <option value="echo">Echo - 中性的な声</option>
+                  <option value="alloy">Alloy - 中性的で落ち着いた声</option>
                 </select>
-                <p className="mt-1 text-sm text-gray-500">
-                  AI会話練習で使用する固定音声モデル（感情はAIが動的に決定）
+                <p className="mt-2 text-sm text-gray-600">
+                  <strong>用途：</strong>AI会話練習でAIが話す時の音声を選択します
                 </p>
+                <p className="mt-1 text-sm text-gray-600">
+                  <strong>注意：</strong>感情（喜び、悲しみなど）はAIが文脈に応じて自動的に調整します
+                </p>
+              </div>
+
+              <div className="bg-orange-50 p-4 rounded-lg border border-orange-200 mt-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">📝 セッション終了時のフィードバック設定</h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  AI会話練習が終了した後に表示される評価・フィードバックの内容を設定します
+                </p>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      フィードバックのトーン
+                    </label>
+                    <select
+                      value={formData.ai_feedback_style || 'encouraging'}
+                      onChange={(e) => updateField('ai_feedback_style', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="encouraging">励まし中心</option>
+                      <option value="balanced">バランス型</option>
+                      <option value="strict">厳格</option>
+                    </select>
+                    <p className="mt-1 text-sm text-gray-600">
+                      <strong>影響：</strong>学習者へのフィードバックメッセージの書き方が変わります。
+                      励まし中心は良い点を強調し、厳格は改善点を詳しく指摘します。
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      重点的に評価する項目
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.ai_evaluation_focus || '文法,語彙,流暢さ,適切さ'}
+                      onChange={(e) => updateField('ai_evaluation_focus', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="例: 文法,語彙,流暢さ,適切さ"
+                    />
+                    <p className="mt-1 text-sm text-gray-600">
+                      <strong>用途：</strong>このレッスンで特に注目して評価したい項目をカンマ区切りで入力。
+                      フィードバックでこれらの項目が詳しく言及されます。
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      採点の厳しさ
+                    </label>
+                    <select
+                      value={formData.ai_evaluation_strictness || 'medium'}
+                      onChange={(e) => updateField('ai_evaluation_strictness', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="low">甘い</option>
+                      <option value="medium">普通</option>
+                      <option value="high">厳しい</option>
+                    </select>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        文法スコア配分 (%)
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.ai_score_weight_grammar || 25}
+                        onChange={(e) => updateField('ai_score_weight_grammar', parseInt(e.target.value))}
+                        min="0"
+                        max="100"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        語彙スコア配分 (%)
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.ai_score_weight_vocabulary || 25}
+                        onChange={(e) => updateField('ai_score_weight_vocabulary', parseInt(e.target.value))}
+                        min="0"
+                        max="100"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        流暢さスコア配分 (%)
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.ai_score_weight_fluency || 25}
+                        onChange={(e) => updateField('ai_score_weight_fluency', parseInt(e.target.value))}
+                        min="0"
+                        max="100"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        適切さスコア配分 (%)
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.ai_score_weight_appropriateness || 25}
+                        onChange={(e) => updateField('ai_score_weight_appropriateness', parseInt(e.target.value))}
+                        min="0"
+                        max="100"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+                  <div className="bg-yellow-100 p-3 rounded-md mt-4">
+                    <p className="text-sm font-medium text-gray-700">
+                      スコア配分の合計: {(formData.ai_score_weight_grammar || 25) + (formData.ai_score_weight_vocabulary || 25) + (formData.ai_score_weight_fluency || 25) + (formData.ai_score_weight_appropriateness || 25)}%
+                    </p>
+                    <p className="text-sm text-gray-600 mt-1">
+                      ⚠️ 合計が100%になるように調整してください。各項目の配分によって最終スコアの計算方法が変わります。
+                    </p>
+                  </div>
+                </div>
               </div>
 
             </div>
