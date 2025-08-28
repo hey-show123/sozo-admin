@@ -73,6 +73,7 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
     lesson_type: 'conversation',
     difficulty_score: 1,
     is_active: true,
+    objectives: [] as string[],  // 学習目標を追加
     // Complex fields
     key_phrases: [] as KeyPhrase[],
     dialogues: [] as Dialogue[],
@@ -176,6 +177,7 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
           difficulty_score: data.difficulty_score || 1,
           is_active: data.is_active !== false,
           key_phrases: data.key_phrases || [],
+          objectives: data.objectives || [],
           dialogues: data.dialogues || [],
           grammar_points: data.grammar_points || [],
           vocabulary_questions: data.vocabulary_questions || [],
@@ -352,12 +354,11 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
         lesson_type: formData.lesson_type,
         difficulty_score: formData.difficulty_score,
         is_active: formData.is_active,
+        objectives: formData.objectives.length > 0 ? formData.objectives : null,
         key_phrases: keyPhrasesWithTTS.length > 0 ? keyPhrasesWithTTS : null,
         dialogues: dialoguesWithTTS.length > 0 ? dialoguesWithTTS : null,
-        grammar_points: formData.grammar_points.length > 0 ? formData.grammar_points : null,
         vocabulary_questions: formData.vocabulary_questions.length > 0 ? formData.vocabulary_questions : null,
         application_practice: formData.application_practice.length > 0 ? formData.application_practice : null,
-        cultural_notes: formData.cultural_notes || null,
         ai_conversation_system_prompt: formData.ai_conversation_system_prompt || null,
         ai_conversation_display_name: formData.ai_conversation_display_name || null,
         ai_conversation_display_description: formData.ai_conversation_display_description || null,
@@ -732,6 +733,50 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
                       rows={3}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
                     />
+                  </div>
+
+                  {/* 学習目標セクション */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      学習目標
+                    </label>
+                    <div className="space-y-2">
+                      {formData.objectives.map((objective, index) => (
+                        <div key={index} className="flex gap-2">
+                          <input
+                            type="text"
+                            value={objective}
+                            onChange={(e) => {
+                              const newObjectives = [...formData.objectives]
+                              newObjectives[index] = e.target.value
+                              setFormData({ ...formData, objectives: newObjectives })
+                            }}
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                            placeholder={`目標 ${index + 1}`}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newObjectives = formData.objectives.filter((_, i) => i !== index)
+                              setFormData({ ...formData, objectives: newObjectives })
+                            }}
+                            className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData({ ...formData, objectives: [...formData.objectives, ''] })
+                        }}
+                        className="flex items-center gap-2 px-3 py-2 text-pink-600 hover:bg-pink-50 rounded-lg"
+                      >
+                        <Plus className="h-4 w-4" />
+                        目標を追加
+                      </button>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
