@@ -64,8 +64,6 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
     description: '',
     curriculum_id: '',
     order_index: 1,
-    lesson_type: 'conversation',
-    difficulty_score: 1,
     is_active: true,
     objectives: [] as string[],  // 学習目標を追加
     // Complex fields
@@ -165,8 +163,6 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
           description: data.description || '',
           curriculum_id: data.curriculum_id || '',
           order_index: data.order_index || 1,
-          lesson_type: data.lesson_type || 'conversation',
-          difficulty_score: data.difficulty_score || 1,
           is_active: data.is_active !== false,
           key_phrases: data.key_phrases || [],
           objectives: data.objectives || [],
@@ -341,8 +337,6 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
         title: formData.title,
         description: formData.description,
         order_index: formData.order_index,
-        lesson_type: formData.lesson_type,
-        difficulty_score: formData.difficulty_score,
         is_active: formData.is_active,
         objectives: formData.objectives.length > 0 ? formData.objectives : null,
         key_phrases: keyPhrasesWithTTS.length > 0 ? keyPhrasesWithTTS : null,
@@ -675,18 +669,6 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
                       />
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        レッスンタイプ
-                      </label>
-                      <select
-                        value={formData.lesson_type}
-                        onChange={(e) => setFormData({ ...formData, lesson_type: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-                      >
-                        <option value="conversation">会話</option>
-                      </select>
-                    </div>
                   </div>
 
                   <div>
