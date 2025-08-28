@@ -1528,19 +1528,6 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
               )}
             </div>
 
-            {/* Cultural Notes */}
-            <div className="mb-6 border-t pt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                文化的なメモ
-              </label>
-              <textarea
-                value={formData.cultural_notes}
-                onChange={(e) => setFormData({ ...formData, cultural_notes: e.target.value })}
-                rows={3}
-                placeholder="文化的な背景や注意事項"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-            </div>
           </div>
         </div>
 
