@@ -21,11 +21,6 @@ interface Dialogue {
   emotion?: string
 }
 
-interface GrammarPoint {
-  title: string
-  explanation: string
-  examples: string[]
-}
 
 interface VocabularyQuestion {
   question: string
@@ -59,7 +54,6 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
     basic: true,
     keyPhrases: false,
     dialogues: false,
-    grammar: false,
     vocabulary: false,
     application: false,
     ai: false
@@ -77,10 +71,8 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
     // Complex fields
     key_phrases: [] as KeyPhrase[],
     dialogues: [] as Dialogue[],
-    grammar_points: [] as GrammarPoint[],
     vocabulary_questions: [] as VocabularyQuestion[],
     application_practice: [] as ApplicationPractice[],
-    cultural_notes: '',
     // AI conversation settings - 完全セッション別
     // セッション1設定
     session_1_role: '',
@@ -179,10 +171,8 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
           key_phrases: data.key_phrases || [],
           objectives: data.objectives || [],
           dialogues: data.dialogues || [],
-          grammar_points: data.grammar_points || [],
           vocabulary_questions: data.vocabulary_questions || [],
           application_practice: data.application_practice || [],
-          cultural_notes: data.cultural_notes || '',
           // AI設定 - データベースから取得した値を使用
           session_1_role: aiPromptData?.session_1_role || '',
           session_1_background: aiPromptData?.session_1_background || '',
@@ -581,26 +571,6 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
     })
   }
 
-  // Add Grammar Point
-  const addGrammarPoint = () => {
-    setFormData({
-      ...formData,
-      grammar_points: [...formData.grammar_points, { title: '', explanation: '', examples: [] }]
-    })
-  }
-
-  const updateGrammarPoint = (index: number, field: keyof GrammarPoint, value: any) => {
-    const updated = [...formData.grammar_points]
-    updated[index] = { ...updated[index], [field]: value }
-    setFormData({ ...formData, grammar_points: updated })
-  }
-
-  const removeGrammarPoint = (index: number) => {
-    setFormData({
-      ...formData,
-      grammar_points: formData.grammar_points.filter((_, i) => i !== index)
-    })
-  }
 
   // Add Vocabulary Question
   const addVocabularyQuestion = () => {
@@ -715,10 +685,6 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
                       >
                         <option value="conversation">会話</option>
-                        <option value="grammar">文法</option>
-                        <option value="vocabulary">語彙</option>
-                        <option value="listening">リスニング</option>
-                        <option value="reading">リーディング</option>
                       </select>
                     </div>
                   </div>
@@ -979,64 +945,6 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
               )}
             </div>
 
-            {/* Grammar Points Section */}
-            <div className="mb-6 border-t pt-6">
-              <button
-                type="button"
-                onClick={() => toggleSection('grammar')}
-                className="flex items-center justify-between w-full text-left font-semibold text-lg mb-4"
-              >
-                文法ポイント
-                {expandedSections.grammar ? <ChevronUp /> : <ChevronDown />}
-              </button>
-              
-              {expandedSections.grammar && (
-                <div className="space-y-4">
-                  {formData.grammar_points.map((point, index) => (
-                    <div key={index} className="border rounded-lg p-4">
-                      <input
-                        type="text"
-                        placeholder="タイトル"
-                        value={point.title}
-                        onChange={(e) => updateGrammarPoint(index, 'title', e.target.value)}
-                        className="w-full mb-2 px-3 py-2 border border-gray-300 rounded-lg"
-                      />
-                      <textarea
-                        placeholder="説明"
-                        value={point.explanation}
-                        onChange={(e) => updateGrammarPoint(index, 'explanation', e.target.value)}
-                        rows={2}
-                        className="w-full mb-2 px-3 py-2 border border-gray-300 rounded-lg"
-                      />
-                      <div className="flex gap-2">
-                        <textarea
-                          placeholder="例文（改行区切り）"
-                          value={point.examples.join('\n')}
-                          onChange={(e) => updateGrammarPoint(index, 'examples', e.target.value.split('\n'))}
-                          rows={2}
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeGrammarPoint(index)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded self-start"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={addGrammarPoint}
-                    className="flex items-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    文法ポイントを追加
-                  </button>
-                </div>
-              )}
-            </div>
 
             {/* Vocabulary Questions Section */}
             <div className="mb-6 border-t pt-6">

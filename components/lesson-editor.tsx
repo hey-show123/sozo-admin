@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useMemo } from 'react'
 import { Plus, Trash2, GripVertical, Copy, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react'
-import { LessonData, KeyPhrase, Dialogue, VocabularyQuestion, GrammarPoint, ApplicationPractice } from '@/lib/lesson-service'
+import { LessonData, KeyPhrase, Dialogue, VocabularyQuestion, ApplicationPractice } from '@/lib/lesson-service'
 
 interface LessonEditorProps {
   initialData?: Partial<LessonData>
@@ -32,7 +32,6 @@ export default function LessonEditor({
     dialogues: [],
     vocabulary_questions: [],
     application_practice: [],
-    grammar_points: [],
     is_active: true,
     ...initialData
   })
@@ -147,28 +146,6 @@ export default function LessonEditor({
     updateField('application_practice', practices)
   }, [formData.application_practice, updateField])
 
-  const addGrammarPoint = useCallback(() => {
-    const newGrammar: GrammarPoint = {
-      name: '',
-      explanation: '',
-      structure: '',
-      examples: [],
-      commonMistakes: []
-    }
-    updateField('grammar_points', [...(formData.grammar_points || []), newGrammar])
-  }, [formData.grammar_points, updateField])
-
-  const updateGrammarPoint = useCallback((index: number, field: keyof GrammarPoint, value: any) => {
-    const points = [...(formData.grammar_points || [])]
-    points[index] = { ...points[index], [field]: value }
-    updateField('grammar_points', points)
-  }, [formData.grammar_points, updateField])
-
-  const removeGrammarPoint = useCallback((index: number) => {
-    const points = [...(formData.grammar_points || [])]
-    points.splice(index, 1)
-    updateField('grammar_points', points)
-  }, [formData.grammar_points, updateField])
 
   const validateForm = useCallback(() => {
     const errors: string[] = []
@@ -190,7 +167,7 @@ export default function LessonEditor({
       (formData.dialogues && formData.dialogues.length > 0) ||
       (formData.vocabulary_questions && formData.vocabulary_questions.length > 0) ||
       (formData.application_practice && formData.application_practice.length > 0) ||
-      (formData.grammar_points && formData.grammar_points.length > 0)
+      false
 
     if (!hasContent) {
       errors.push('少なくとも1つのコンテンツを追加してください')
@@ -217,7 +194,6 @@ export default function LessonEditor({
     { id: 'dialogues', label: 'ダイアログ', count: formData.dialogues?.length },
     { id: 'vocabulary', label: '語彙', count: formData.vocabulary_questions?.length },
     { id: 'application', label: '応用練習', count: formData.application_practice?.length },
-    { id: 'grammar', label: '文法', count: formData.grammar_points?.length },
     { id: 'ai_settings', label: 'AI設定', icon: null }
   ]
 
@@ -325,7 +301,6 @@ export default function LessonEditor({
                     <option value="conversation">会話</option>
                     <option value="pronunciation">発音</option>
                     <option value="vocabulary">語彙</option>
-                    <option value="grammar">文法</option>
                     <option value="review">復習</option>
                   </select>
                 </div>
@@ -716,64 +691,6 @@ export default function LessonEditor({
             </div>
           )}
 
-          {activeTab === 'grammar' && (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-medium">文法ポイント</h3>
-                <button
-                  type="button"
-                  onClick={addGrammarPoint}
-                  className="flex items-center px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                  <Plus className="h-4 w-4 mr-1" />
-                  追加
-                </button>
-              </div>
-
-              {(formData.grammar_points || []).map((point, index) => (
-                <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1 space-y-3">
-                      <input
-                        type="text"
-                        value={point.name}
-                        onChange={(e) => updateGrammarPoint(index, 'name', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="文法項目名"
-                      />
-                      <textarea
-                        value={point.explanation}
-                        onChange={(e) => updateGrammarPoint(index, 'explanation', e.target.value)}
-                        rows={2}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="説明"
-                      />
-                      <input
-                        type="text"
-                        value={point.structure}
-                        onChange={(e) => updateGrammarPoint(index, 'structure', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="構造・パターン"
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => removeGrammarPoint(index)}
-                      className="ml-2 p-2 text-red-500 hover:bg-red-50 rounded"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-
-              {(!formData.grammar_points || formData.grammar_points.length === 0) && (
-                <div className="text-center py-8 text-gray-500">
-                  文法ポイントがまだ追加されていません
-                </div>
-              )}
-            </div>
-          )}
 
           {activeTab === 'application' && (
             <div className="space-y-4">
