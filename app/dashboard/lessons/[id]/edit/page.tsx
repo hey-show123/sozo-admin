@@ -794,7 +794,7 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
                 <div className="space-y-4">
                   {formData.key_phrases.map((phrase, index) => (
                     <div key={index} className="border rounded-lg p-4">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
                         <input
                           type="text"
                           placeholder="フレーズ (英語)"
@@ -807,13 +807,6 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
                           placeholder="意味 (日本語)"
                           value={phrase.meaning}
                           onChange={(e) => updateKeyPhrase(index, 'meaning', e.target.value)}
-                          className="px-3 py-2 border border-gray-300 rounded-lg"
-                        />
-                        <input
-                          type="text"
-                          placeholder="発音記号"
-                          value={phrase.phonetic}
-                          onChange={(e) => updateKeyPhrase(index, 'phonetic', e.target.value)}
                           className="px-3 py-2 border border-gray-300 rounded-lg"
                         />
                       </div>

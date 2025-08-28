@@ -66,7 +66,6 @@ export default function LessonEditor({
     const newPhrase: KeyPhrase = {
       phrase: '',
       meaning: '',
-      phonetic: '',
       examples: []
     }
     updateField('key_phrases', [...(formData.key_phrases || []), newPhrase])
@@ -478,13 +477,6 @@ export default function LessonEditor({
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
-                  <input
-                    type="text"
-                    value={phrase.phonetic || ''}
-                    onChange={(e) => updateKeyPhrase(index, 'phonetic', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="発音記号（オプション）"
-                  />
                   
                   {/* 音声・感情設定フィールド */}
                   <div className="grid grid-cols-3 gap-3">
