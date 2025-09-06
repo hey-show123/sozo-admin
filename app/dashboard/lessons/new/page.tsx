@@ -11,6 +11,7 @@ function NewLessonForm() {
   const searchParams = useSearchParams()
   const moduleId = searchParams.get('module_id')
   const [loading, setLoading] = useState(false)
+  const [isComposing, setIsComposing] = useState(false)
   const [formData, setFormData] = useState({
     title: '',
     module_id: moduleId || '',
@@ -80,7 +81,26 @@ function NewLessonForm() {
       <div className="bg-white rounded-lg shadow p-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">新規レッスン作成</h1>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form 
+          onSubmit={handleSubmit} 
+          className="space-y-6"
+          onKeyDown={(e) => {
+            // Prevent form submission on Enter key
+            // except when Shift+Enter is pressed (for multiline input)
+            if (e.key === 'Enter' && !e.shiftKey) {
+              // Allow Enter in textareas
+              if (e.target instanceof HTMLTextAreaElement) {
+                return;
+              }
+              // Prevent submission if IME is composing or in any other case
+              if (isComposing || !(e.target instanceof HTMLButtonElement)) {
+                e.preventDefault();
+              }
+            }
+          }}
+          onCompositionStart={() => setIsComposing(true)}
+          onCompositionEnd={() => setIsComposing(false)}
+        >
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
               レッスンタイトル <span className="text-red-500">*</span>

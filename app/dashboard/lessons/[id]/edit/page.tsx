@@ -50,6 +50,7 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
   const [lessonId, setLessonId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [fetching, setFetching] = useState(true)
+  const [isComposing, setIsComposing] = useState(false)
   const [expandedSections, setExpandedSections] = useState({
     basic: true,
     keyPhrases: false,
@@ -637,7 +638,25 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
         </Link>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <form 
+        onSubmit={handleSubmit}
+        onKeyDown={(e) => {
+          // Prevent form submission on Enter key
+          // except when Shift+Enter is pressed (for multiline input)
+          if (e.key === 'Enter' && !e.shiftKey) {
+            // Allow Enter in textareas
+            if (e.target instanceof HTMLTextAreaElement) {
+              return;
+            }
+            // Prevent submission if IME is composing or in any other case
+            if (isComposing || !(e.target instanceof HTMLButtonElement)) {
+              e.preventDefault();
+            }
+          }
+        }}
+        onCompositionStart={() => setIsComposing(true)}
+        onCompositionEnd={() => setIsComposing(false)}
+      >
         <div className="bg-white rounded-lg shadow mb-6">
           <div className="p-6">
             <h1 className="text-2xl font-bold text-gray-900 mb-6">レッスン編集</h1>

@@ -23,6 +23,7 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [curriculum, setCurriculum] = useState<Curriculum | null>(null)
+  const [isComposing, setIsComposing] = useState(false)
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -216,7 +217,26 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
       <div className="bg-white rounded-lg shadow p-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">カリキュラム編集</h1>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form 
+          onSubmit={handleSubmit} 
+          className="space-y-6"
+          onKeyDown={(e) => {
+            // Prevent form submission on Enter key
+            // except when Shift+Enter is pressed (for multiline input)
+            if (e.key === 'Enter' && !e.shiftKey) {
+              // Allow Enter in textareas
+              if (e.target instanceof HTMLTextAreaElement) {
+                return;
+              }
+              // Prevent submission if IME is composing or in any other case
+              if (isComposing || !(e.target instanceof HTMLButtonElement)) {
+                e.preventDefault();
+              }
+            }
+          }}
+          onCompositionStart={() => setIsComposing(true)}
+          onCompositionEnd={() => setIsComposing(false)}
+        >
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
               タイトル <span className="text-red-500">*</span>

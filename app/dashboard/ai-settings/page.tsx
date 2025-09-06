@@ -65,6 +65,7 @@ export default function AISettingsPage() {
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
   const [userRole, setUserRole] = useState<string | null>(null)
   const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [isComposing, setIsComposing] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -1380,7 +1381,26 @@ function CreatePromptForm({ onSave, onCancel, saving }: CreatePromptFormProps) {
         <h3 className="text-xl font-semibold text-gray-900">新規プロンプト作成</h3>
       </div>
 
-      <form onSubmit={handleSubmit} className="p-6 space-y-6">
+      <form 
+        onSubmit={handleSubmit} 
+        className="p-6 space-y-6"
+        onKeyDown={(e) => {
+          // Prevent form submission on Enter key
+          // except when Shift+Enter is pressed (for multiline input)
+          if (e.key === 'Enter' && !e.shiftKey) {
+            // Allow Enter in textareas
+            if (e.target instanceof HTMLTextAreaElement) {
+              return;
+            }
+            // Prevent submission if IME is composing or in any other case
+            if (isComposing || !(e.target instanceof HTMLButtonElement)) {
+              e.preventDefault();
+            }
+          }
+        }}
+        onCompositionStart={() => setIsComposing(true)}
+        onCompositionEnd={() => setIsComposing(false)}
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
