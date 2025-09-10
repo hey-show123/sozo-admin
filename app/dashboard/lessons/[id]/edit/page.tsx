@@ -954,60 +954,98 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
                 onClick={() => toggleSection('vocabulary')}
                 className="flex items-center justify-between w-full text-left font-semibold text-lg mb-4"
               >
-                語彙問題
+                語彙問題（4択クイズ）
                 {expandedSections.vocabulary ? <ChevronUp /> : <ChevronDown />}
               </button>
               
               {expandedSections.vocabulary && (
                 <div className="space-y-4">
+                  {/* 使い方の説明 */}
+                  <div className="bg-blue-50 p-4 rounded-lg mb-4">
+                    <p className="text-sm text-blue-800 font-medium mb-2">📝 入力方法</p>
+                    <ul className="text-sm text-blue-700 space-y-1">
+                      <li>• <strong>英単語/フレーズ</strong>: 問題となる英語を入力（例: "Hello", "Thank you"）</li>
+                      <li>• <strong>選択肢1〜4</strong>: 日本語の選択肢を4つ入力</li>
+                      <li>• <strong>正解</strong>: 正しい選択肢の番号を選択</li>
+                      <li>• <strong>解説</strong>: なぜその答えが正解なのかの説明</li>
+                    </ul>
+                  </div>
+                  
                   {formData.vocabulary_questions.map((question, index) => (
-                    <div key={index} className="border rounded-lg p-4">
-                      <input
-                        type="text"
-                        placeholder="問題文"
-                        value={question.question}
-                        onChange={(e) => updateVocabularyQuestion(index, 'question', e.target.value)}
-                        className="w-full mb-2 px-3 py-2 border border-gray-300 rounded-lg"
-                      />
-                      <div className="grid grid-cols-2 gap-2 mb-2">
-                        {question.options.map((option, optIndex) => (
-                          <input
-                            key={optIndex}
-                            type="text"
-                            placeholder={`選択肢 ${optIndex + 1}`}
-                            value={option}
-                            onChange={(e) => {
-                              const newOptions = [...question.options]
-                              newOptions[optIndex] = e.target.value
-                              updateVocabularyQuestion(index, 'options', newOptions)
-                            }}
-                            className="px-3 py-2 border border-gray-300 rounded-lg"
-                          />
-                        ))}
+                    <div key={index} className="border rounded-lg p-4 bg-gray-50">
+                      <div className="mb-3">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          問題 {index + 1}: 英単語/フレーズ <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="例: Hello, Thank you, How are you?"
+                          value={question.question}
+                          onChange={(e) => updateVocabularyQuestion(index, 'question', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
+                        />
                       </div>
+                      
+                      <div className="mb-3">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          日本語の選択肢（4つ）
+                        </label>
+                        <div className="grid grid-cols-2 gap-2">
+                          {question.options.map((option, optIndex) => (
+                            <div key={optIndex} className="relative">
+                              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">
+                                {optIndex + 1}.
+                              </span>
+                              <input
+                                type="text"
+                                placeholder={`選択肢 ${optIndex + 1} (日本語)`}
+                                value={option}
+                                onChange={(e) => {
+                                  const newOptions = [...question.options]
+                                  newOptions[optIndex] = e.target.value
+                                  updateVocabularyQuestion(index, 'options', newOptions)
+                                }}
+                                className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg bg-white"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        <select
-                          value={question.correct_answer}
-                          onChange={(e) => updateVocabularyQuestion(index, 'correct_answer', parseInt(e.target.value))}
-                          className="px-3 py-2 border border-gray-300 rounded-lg"
-                        >
-                          <option value={0}>正解: 選択肢1</option>
-                          <option value={1}>正解: 選択肢2</option>
-                          <option value={2}>正解: 選択肢3</option>
-                          <option value={3}>正解: 選択肢4</option>
-                        </select>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            正解の選択肢
+                          </label>
+                          <select
+                            value={question.correct_answer}
+                            onChange={(e) => updateVocabularyQuestion(index, 'correct_answer', parseInt(e.target.value))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
+                          >
+                            <option value={0}>選択肢1が正解</option>
+                            <option value={1}>選択肢2が正解</option>
+                            <option value={2}>選択肢3が正解</option>
+                            <option value={3}>選択肢4が正解</option>
+                          </select>
+                        </div>
                         <div className="flex gap-2">
-                          <input
-                            type="text"
-                            placeholder="解説"
-                            value={question.explanation}
-                            onChange={(e) => updateVocabularyQuestion(index, 'explanation', e.target.value)}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg"
-                          />
+                          <div className="flex-1">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              解説（任意）
+                            </label>
+                            <input
+                              type="text"
+                              placeholder="なぜこれが正解なのか説明"
+                              value={question.explanation}
+                              onChange={(e) => updateVocabularyQuestion(index, 'explanation', e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
+                            />
+                          </div>
                           <button
                             type="button"
                             onClick={() => removeVocabularyQuestion(index)}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded"
+                            className="mt-6 p-2 text-red-600 hover:bg-red-50 rounded"
+                            title="この問題を削除"
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
@@ -1015,6 +1053,7 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
                       </div>
                     </div>
                   ))}
+                  
                   <button
                     type="button"
                     onClick={addVocabularyQuestion}
