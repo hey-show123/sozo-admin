@@ -139,9 +139,9 @@ export default function CoursesPage() {
           </Link>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow">
+        <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="p-4 border-b">
-            <div className="relative">
+            <div className="relative max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="text"
@@ -154,39 +154,42 @@ export default function CoursesPage() {
           </div>
           
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[1200px]">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">
+                    操作
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[200px]">
                     タイトル
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[300px]">
                     説明
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
                     カテゴリ
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
                     難易度
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">
                     レッスン数
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">
                     ステータス
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
                     最終更新
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    アクション
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
+                    その他
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredCourses.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
+                    <td colSpan={9} className="px-6 py-12 text-center text-gray-500">
                       カリキュラムがありません
                     </td>
                   </tr>
@@ -195,36 +198,47 @@ export default function CoursesPage() {
                   const lessonCount = course.lessons?.[0]?.count || 0
                   
                   return (
-                    <tr key={course.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
+                    <tr key={course.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <div className="flex items-center space-x-2">
+                          <Link
+                            href={`/dashboard/courses/${course.id}/edit`}
+                            className="p-1.5 text-purple-600 hover:text-purple-900 hover:bg-purple-50 rounded transition-colors"
+                            title="編集"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Link>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
                         <Link
                           href={`/dashboard/courses/${course.id}`}
-                          className="text-sm font-medium text-gray-900 hover:text-purple-600"
+                          className="text-sm font-medium text-gray-900 hover:text-purple-600 block"
                         >
                           {course.title}
                         </Link>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-600 max-w-xs truncate">
+                      <td className="px-4 py-3">
+                        <div className="text-sm text-gray-600" title={course.description || ''}>
                           {course.description || '-'}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 py-3 whitespace-nowrap">
                         <div className="text-sm text-gray-600">
                           {course.category}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 py-3 whitespace-nowrap">
                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getDifficultyColor(course.difficulty_level)}`}>
                           {getDifficultyLabel(course.difficulty_level)}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 py-3 whitespace-nowrap">
                         <div className="text-sm text-gray-600">
                           {lessonCount} レッスン
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 py-3 whitespace-nowrap">
                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                           course.is_active 
                             ? 'bg-green-100 text-green-800' 
@@ -233,28 +247,26 @@ export default function CoursesPage() {
                           {course.is_active ? 'アクティブ' : '非公開'}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
                         {course.updated_at ? new Date(course.updated_at).toLocaleDateString('ja-JP') : '-'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <Link
-                          href={`/dashboard/courses/${course.id}`}
-                          className="text-purple-600 hover:text-purple-900 mr-3"
-                        >
-                          <BookOpen className="h-4 w-4 inline" />
-                        </Link>
-                        <Link
-                          href={`/dashboard/courses/${course.id}/edit`}
-                          className="text-gray-600 hover:text-gray-900 mr-3"
-                        >
-                          <Edit className="h-4 w-4 inline" />
-                        </Link>
-                        <button
-                          onClick={() => handleDelete(course.id)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          <Trash2 className="h-4 w-4 inline" />
-                        </button>
+                      <td className="px-4 py-3 whitespace-nowrap text-center text-sm font-medium">
+                        <div className="flex items-center justify-center space-x-2">
+                          <Link
+                            href={`/dashboard/courses/${course.id}`}
+                            className="p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
+                            title="詳細表示"
+                          >
+                            <BookOpen className="h-4 w-4" />
+                          </Link>
+                          <button
+                            onClick={() => handleDelete(course.id)}
+                            className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                            title="削除"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   )
