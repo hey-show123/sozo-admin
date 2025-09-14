@@ -51,6 +51,9 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
 
       if (error) throw error
 
+      console.log('Fetched curriculum data:', data)
+      console.log('Category value:', data.category)
+
       setCurriculum(data)
       setFormData({
         title: data.title || '',
@@ -114,14 +117,23 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
 
     try {
       const supabase = createClient()
-      
+
       // 画像をアップロード（新しい画像が選択されている場合）
       let imageUrl = formData.image_url
       if (imageFile) {
         imageUrl = await handleImageUpload()
       }
 
-      const { error } = await supabase
+      console.log('Updating curriculum with data:', {
+        title: formData.title,
+        description: formData.description || null,
+        difficulty_level: formData.difficulty_level,
+        category: formData.category,
+        image_url: imageUrl || null,
+        is_active: formData.is_active,
+      })
+
+      const { data, error } = await supabase
         .from('curriculums')
         .update({
           title: formData.title,
@@ -133,14 +145,19 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
           updated_at: new Date().toISOString()
         })
         .eq('id', id)
+        .select()
 
-      if (error) throw error
+      if (error) {
+        console.error('Supabase update error:', error)
+        throw error
+      }
 
+      console.log('Update successful:', data)
       alert('カリキュラムを更新しました')
       router.push(`/dashboard/courses/${id}`)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating curriculum:', error)
-      alert('カリキュラムの更新に失敗しました')
+      alert(`カリキュラムの更新に失敗しました: ${error.message || 'Unknown error'}`)
     } finally {
       setSaving(false)
     }
