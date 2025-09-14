@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Plus, Edit, Trash2, BookOpen, Loader2, Search } from 'lucide-react'
 import { createClient } from '../../../lib/supabase'
+import { getCategoryLabel } from '../../../lib/constants/categories'
 
 interface Course {
   id: string
@@ -225,7 +226,7 @@ export default function CoursesPage() {
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
                         <div className="text-sm text-gray-600">
-                          {course.category}
+                          {getCategoryLabel(course.category)}
                         </div>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">

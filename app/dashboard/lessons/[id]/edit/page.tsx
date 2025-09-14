@@ -72,43 +72,17 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
     dialogues: [] as Dialogue[],
     vocabulary_questions: [] as VocabularyQuestion[],
     application_practice: [] as ApplicationPractice[],
-    // AI conversation settings - 完全セッション別
-    // セッション1設定
-    session_1_role: '',
-    session_1_background: '',
-    session_1_situation: '',
-    session_1_personality: '',
-    session_1_location: '',
-    session_1_objective: '',
-    session_1_attitude: '',
-    session_1_speaking_style: '',
-    session_1_difficulty_level: 'beginner',
-    session_1_focus_points: '',
-    session_1_instructions: '',
-    // セッション2設定
-    session_2_role: '',
-    session_2_background: '',
-    session_2_situation: '',
-    session_2_personality: '',
-    session_2_location: '',
-    session_2_objective: '',
-    session_2_attitude: '',
-    session_2_speaking_style: '',
-    session_2_difficulty_level: 'intermediate',
-    session_2_focus_points: '',
-    session_2_instructions: '',
-    // セッション3設定
-    session_3_role: '',
-    session_3_background: '',
-    session_3_situation: '',
-    session_3_personality: '',
-    session_3_location: '',
-    session_3_objective: '',
-    session_3_attitude: '',
-    session_3_speaking_style: '',
-    session_3_difficulty_level: 'advanced',
-    session_3_focus_points: '',
-    session_3_instructions: '',
+    // AI conversation settings - 全セッション共通
+    ai_role: '',
+    ai_background: '',
+    ai_situation: '',
+    ai_personality: '',
+    ai_location: '',
+    ai_objective: '',
+    ai_attitude: '',
+    ai_speaking_style: '',
+    ai_focus_points: '',
+    ai_instructions: '',
     // フィードバック設定
     ai_feedback_style: 'encouraging',
     ai_evaluation_focus: '文法,語彙,流暢さ,適切さ',
@@ -170,40 +144,17 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
           dialogues: data.dialogues || [],
           vocabulary_questions: data.vocabulary_questions || [],
           application_practice: data.application_practice || [],
-          // AI設定 - データベースから取得した値を使用
-          session_1_role: aiPromptData?.session_1_role || '',
-          session_1_background: aiPromptData?.session_1_background || '',
-          session_1_situation: aiPromptData?.session_1_situation || '',
-          session_1_personality: aiPromptData?.session_1_personality || '',
-          session_1_location: aiPromptData?.session_1_location || '',
-          session_1_objective: aiPromptData?.session_1_objective || '',
-          session_1_attitude: aiPromptData?.session_1_attitude || '',
-          session_1_speaking_style: aiPromptData?.session_1_speaking_style || '',
-          session_1_difficulty_level: aiPromptData?.session_1_difficulty_level || 'beginner',
-          session_1_focus_points: aiPromptData?.session_1_focus_points || '',
-          session_1_instructions: '',
-          session_2_role: aiPromptData?.session_2_role || '',
-          session_2_background: aiPromptData?.session_2_background || '',
-          session_2_situation: aiPromptData?.session_2_situation || '',
-          session_2_personality: aiPromptData?.session_2_personality || '',
-          session_2_location: aiPromptData?.session_2_location || '',
-          session_2_objective: aiPromptData?.session_2_objective || '',
-          session_2_attitude: aiPromptData?.session_2_attitude || '',
-          session_2_speaking_style: aiPromptData?.session_2_speaking_style || '',
-          session_2_difficulty_level: aiPromptData?.session_2_difficulty_level || 'intermediate',
-          session_2_focus_points: aiPromptData?.session_2_focus_points || '',
-          session_2_instructions: '',
-          session_3_role: aiPromptData?.session_3_role || '',
-          session_3_background: aiPromptData?.session_3_background || '',
-          session_3_situation: aiPromptData?.session_3_situation || '',
-          session_3_personality: aiPromptData?.session_3_personality || '',
-          session_3_location: aiPromptData?.session_3_location || '',
-          session_3_objective: aiPromptData?.session_3_objective || '',
-          session_3_attitude: aiPromptData?.session_3_attitude || '',
-          session_3_speaking_style: aiPromptData?.session_3_speaking_style || '',
-          session_3_difficulty_level: aiPromptData?.session_3_difficulty_level || 'advanced',
-          session_3_focus_points: aiPromptData?.session_3_focus_points || '',
-          session_3_instructions: '',
+          // AI設定 - データベースから取得した値を使用（セッション1の値を共通設定として使用）
+          ai_role: aiPromptData?.session_1_role || '',
+          ai_background: aiPromptData?.session_1_background || '',
+          ai_situation: aiPromptData?.session_1_situation || '',
+          ai_personality: aiPromptData?.session_1_personality || '',
+          ai_location: aiPromptData?.session_1_location || '',
+          ai_objective: aiPromptData?.session_1_objective || '',
+          ai_attitude: aiPromptData?.session_1_attitude || '',
+          ai_speaking_style: aiPromptData?.session_1_speaking_style || '',
+          ai_focus_points: aiPromptData?.session_1_focus_points || '',
+          ai_instructions: '',
           // フィードバック設定（デフォルト値）
           ai_feedback_style: 'encouraging',
           ai_evaluation_focus: '文法,語彙,流暢さ,適切さ',
@@ -237,25 +188,22 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
           
           // AI設定を読み込み
           if (content.session_settings) {
-            // セッション別設定がある場合
-            for (let i = 1; i <= 3; i++) {
-              const session = content.session_settings[`session_${i}`]
-              if (session) {
-                baseFormData[`session_${i}_role`] = session.character_name || ''
-                baseFormData[`session_${i}_background`] = session.character_background || ''
-                baseFormData[`session_${i}_situation`] = session.situation || ''
-                baseFormData[`session_${i}_personality`] = (session.personality_traits || []).join(', ')
-                baseFormData[`session_${i}_location`] = session.location || ''
-                baseFormData[`session_${i}_objective`] = session.objective || ''
-                baseFormData[`session_${i}_attitude`] = session.attitude || ''
-                baseFormData[`session_${i}_speaking_style`] = session.speaking_style || ''
-                baseFormData[`session_${i}_difficulty_level`] = session.difficulty_level || (i === 1 ? 'beginner' : i === 2 ? 'intermediate' : 'advanced')
-                baseFormData[`session_${i}_focus_points`] = (session.focus_points || []).join(', ')
-                baseFormData[`session_${i}_instructions`] = ''
-              }
+            // セッション1の設定を共通設定として使用
+            const session = content.session_settings['session_1']
+            if (session) {
+              baseFormData['ai_role'] = session.character_name || ''
+              baseFormData['ai_background'] = session.character_background || ''
+              baseFormData['ai_situation'] = session.situation || ''
+              baseFormData['ai_personality'] = (session.personality_traits || []).join(', ')
+              baseFormData['ai_location'] = session.location || ''
+              baseFormData['ai_objective'] = session.objective || ''
+              baseFormData['ai_attitude'] = session.attitude || ''
+              baseFormData['ai_speaking_style'] = session.speaking_style || ''
+              baseFormData['ai_focus_points'] = (session.focus_points || []).join(', ')
+              baseFormData['ai_instructions'] = ''
             }
           } else if (content.character_setting) {
-            // 既存データ形式から読み込み（全セッション共通設定として）
+            // 既存データ形式から読み込み
             const role = content.character_setting.role || ''
             const background = content.character_setting.background || ''
             const personality = content.character_setting.personality || {}
@@ -264,26 +212,22 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
             // シナリオ設定
             const situation = content.scenario_setting?.situation || ''
             
-            // 全セッションに同じ設定を適用
-            for (let i = 1; i <= 3; i++) {
-              baseFormData[`session_${i}_role`] = role
-              baseFormData[`session_${i}_background`] = background
-              baseFormData[`session_${i}_situation`] = situation
-              baseFormData[`session_${i}_personality`] = `${personality.speaking_style || ''} ${personality.attitude || ''}`
-              baseFormData[`session_${i}_instructions`] = instructions
-            }
+            // 共通設定として適用
+            baseFormData['ai_role'] = role
+            baseFormData['ai_background'] = background
+            baseFormData['ai_situation'] = situation
+            baseFormData['ai_personality'] = `${personality.speaking_style || ''} ${personality.attitude || ''}`
+            baseFormData['ai_instructions'] = instructions
           } else if (content.system_prompt) {
             // system_prompt形式から読み込み
             const displayName = content.preparation_display?.ai_display_name || ''
             const description = content.preparation_display?.description || ''
             
-            for (let i = 1; i <= 3; i++) {
-              baseFormData[`session_${i}_role`] = displayName
-              baseFormData[`session_${i}_background`] = description
-              baseFormData[`session_${i}_situation`] = ''
-              baseFormData[`session_${i}_personality`] = ''
-              baseFormData[`session_${i}_instructions`] = content.system_prompt || ''
-            }
+            baseFormData['ai_role'] = displayName
+            baseFormData['ai_background'] = description
+            baseFormData['ai_situation'] = ''
+            baseFormData['ai_personality'] = ''
+            baseFormData['ai_instructions'] = content.system_prompt || ''
           }
           
           // フィードバック設定を読み込み
@@ -344,11 +288,6 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
         dialogues: dialoguesWithTTS.length > 0 ? dialoguesWithTTS : null,
         vocabulary_questions: formData.vocabulary_questions.length > 0 ? formData.vocabulary_questions : null,
         application_practice: formData.application_practice.length > 0 ? formData.application_practice : null,
-        ai_conversation_system_prompt: formData.ai_conversation_system_prompt || null,
-        ai_conversation_display_name: formData.ai_conversation_display_name || null,
-        ai_conversation_display_description: formData.ai_conversation_display_description || null,
-        ai_conversation_emotion: formData.ai_conversation_emotion || null,
-        ai_conversation_voice_model: formData.ai_conversation_voice_model || 'nova',
         updated_at: new Date().toISOString()
       }
 
@@ -368,7 +307,7 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
 
       console.log('Update successful:', data)
 
-      // AIプロンプト設定を保存（新しいフラット形式で）
+      // AIプロンプト設定を保存（全セッション共通設定）
       const aiPromptData = {
         lesson_id: lessonId,
         activity_type: 'ai_conversation',
@@ -376,41 +315,39 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
         prompt_category: 'conversation',
         prompt_content: JSON.stringify({
         session_settings: {
+          // 全セッションで同じ設定を使用
           session_1: {
-            character_name: formData.session_1_role || '美容室のお客様',
-            character_background: formData.session_1_background || '',
-            personality_traits: formData.session_1_personality ? formData.session_1_personality.split(',').map(s => s.trim()) : ['親切', '理解がある'],
-            situation: formData.session_1_situation || '',
-            location: formData.session_1_location || '',
-            objective: formData.session_1_objective || '',
-            attitude: formData.session_1_attitude || '',
-            speaking_style: formData.session_1_speaking_style || '',
-            difficulty_level: formData.session_1_difficulty_level || 'beginner',
-            focus_points: formData.session_1_focus_points ? formData.session_1_focus_points.split(',').map(s => s.trim()) : ['基本的な挨拶', '丁寧な対応']
+            character_name: formData.ai_role || '美容室のお客様',
+            character_background: formData.ai_background || '',
+            personality_traits: formData.ai_personality ? formData.ai_personality.split(',').map(s => s.trim()) : ['親切', '理解がある'],
+            situation: formData.ai_situation || '',
+            location: formData.ai_location || '',
+            objective: formData.ai_objective || '',
+            attitude: formData.ai_attitude || '',
+            speaking_style: formData.ai_speaking_style || '',
+            focus_points: formData.ai_focus_points ? formData.ai_focus_points.split(',').map(s => s.trim()) : ['基本的な挨拶', '丁寧な対応']
           },
           session_2: {
-            character_name: formData.session_2_role || '美容室のお客様',
-            character_background: formData.session_2_background || '',
-            personality_traits: formData.session_2_personality ? formData.session_2_personality.split(',').map(s => s.trim()) : ['フレンドリー', '話し好き'],
-            situation: formData.session_2_situation || '',
-            location: formData.session_2_location || '',
-            objective: formData.session_2_objective || '',
-            attitude: formData.session_2_attitude || '',
-            speaking_style: formData.session_2_speaking_style || '',
-            difficulty_level: formData.session_2_difficulty_level || 'intermediate',
-            focus_points: formData.session_2_focus_points ? formData.session_2_focus_points.split(',').map(s => s.trim()) : ['自然な会話', '提案の表現']
+            character_name: formData.ai_role || '美容室のお客様',
+            character_background: formData.ai_background || '',
+            personality_traits: formData.ai_personality ? formData.ai_personality.split(',').map(s => s.trim()) : ['親切', '理解がある'],
+            situation: formData.ai_situation || '',
+            location: formData.ai_location || '',
+            objective: formData.ai_objective || '',
+            attitude: formData.ai_attitude || '',
+            speaking_style: formData.ai_speaking_style || '',
+            focus_points: formData.ai_focus_points ? formData.ai_focus_points.split(',').map(s => s.trim()) : ['基本的な挨拶', '丁寧な対応']
           },
           session_3: {
-            character_name: formData.session_3_role || '美容室のお客様',
-            character_background: formData.session_3_background || '',
-            personality_traits: formData.session_3_personality ? formData.session_3_personality.split(',').map(s => s.trim()) : ['プロフェッショナル', '要求が高い'],
-            situation: formData.session_3_situation || '',
-            location: formData.session_3_location || '',
-            objective: formData.session_3_objective || '',
-            attitude: formData.session_3_attitude || '',
-            speaking_style: formData.session_3_speaking_style || '',
-            difficulty_level: formData.session_3_difficulty_level || 'advanced',
-            focus_points: formData.session_3_focus_points ? formData.session_3_focus_points.split(',').map(s => s.trim()) : ['高度な接客', 'プロフェッショナルな対応']
+            character_name: formData.ai_role || '美容室のお客様',
+            character_background: formData.ai_background || '',
+            personality_traits: formData.ai_personality ? formData.ai_personality.split(',').map(s => s.trim()) : ['親切', '理解がある'],
+            situation: formData.ai_situation || '',
+            location: formData.ai_location || '',
+            objective: formData.ai_objective || '',
+            attitude: formData.ai_attitude || '',
+            speaking_style: formData.ai_speaking_style || '',
+            focus_points: formData.ai_focus_points ? formData.ai_focus_points.split(',').map(s => s.trim()) : ['基本的な挨拶', '丁寧な対応']
           }
         },
         evaluation_settings: {
@@ -427,7 +364,7 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
         preparation_display: {
           title: 'AI会話実践',
           description: formData.ai_situation || '',
-          ai_display_name: formData.ai_character_role || '美容室のお客様',
+          ai_display_name: formData.ai_role || '美容室のお客様',
           key_points: [
             '今日学んだフレーズを使ってみましょう',
             'AIは優しいので間違いを恐れずに',
@@ -435,37 +372,37 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
           ]
         }
       }),
-        // 新しいフラット形式のカラムにも保存
-        session_1_role: formData.session_1_role,
-        session_1_background: formData.session_1_background,
-        session_1_situation: formData.session_1_situation,
-        session_1_personality: formData.session_1_personality,
-        session_1_location: formData.session_1_location,
-        session_1_objective: formData.session_1_objective,
-        session_1_attitude: formData.session_1_attitude,
-        session_1_speaking_style: formData.session_1_speaking_style,
-        session_1_difficulty_level: formData.session_1_difficulty_level,
-        session_1_focus_points: formData.session_1_focus_points,
-        session_2_role: formData.session_2_role,
-        session_2_background: formData.session_2_background,
-        session_2_situation: formData.session_2_situation,
-        session_2_personality: formData.session_2_personality,
-        session_2_location: formData.session_2_location,
-        session_2_objective: formData.session_2_objective,
-        session_2_attitude: formData.session_2_attitude,
-        session_2_speaking_style: formData.session_2_speaking_style,
-        session_2_difficulty_level: formData.session_2_difficulty_level,
-        session_2_focus_points: formData.session_2_focus_points,
-        session_3_role: formData.session_3_role,
-        session_3_background: formData.session_3_background,
-        session_3_situation: formData.session_3_situation,
-        session_3_personality: formData.session_3_personality,
-        session_3_location: formData.session_3_location,
-        session_3_objective: formData.session_3_objective,
-        session_3_attitude: formData.session_3_attitude,
-        session_3_speaking_style: formData.session_3_speaking_style,
-        session_3_difficulty_level: formData.session_3_difficulty_level,
-        session_3_focus_points: formData.session_3_focus_points,
+        // 新しいフラット形式のカラムにも保存（全セッション同じ値）
+        session_1_role: formData.ai_role,
+        session_1_background: formData.ai_background,
+        session_1_situation: formData.ai_situation,
+        session_1_personality: formData.ai_personality,
+        session_1_location: formData.ai_location,
+        session_1_objective: formData.ai_objective,
+        session_1_attitude: formData.ai_attitude,
+        session_1_speaking_style: formData.ai_speaking_style,
+        session_1_difficulty_level: 'standard',
+        session_1_focus_points: formData.ai_focus_points,
+        session_2_role: formData.ai_role,
+        session_2_background: formData.ai_background,
+        session_2_situation: formData.ai_situation,
+        session_2_personality: formData.ai_personality,
+        session_2_location: formData.ai_location,
+        session_2_objective: formData.ai_objective,
+        session_2_attitude: formData.ai_attitude,
+        session_2_speaking_style: formData.ai_speaking_style,
+        session_2_difficulty_level: 'standard',
+        session_2_focus_points: formData.ai_focus_points,
+        session_3_role: formData.ai_role,
+        session_3_background: formData.ai_background,
+        session_3_situation: formData.ai_situation,
+        session_3_personality: formData.ai_personality,
+        session_3_location: formData.ai_location,
+        session_3_objective: formData.ai_objective,
+        session_3_attitude: formData.ai_attitude,
+        session_3_speaking_style: formData.ai_speaking_style,
+        session_3_difficulty_level: 'standard',
+        session_3_focus_points: formData.ai_focus_points,
         ai_settings: {
           model: 'gpt-4o-mini',
           response_format: { type: 'json_object' },
@@ -756,20 +693,6 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
                         min="1"
                         value={formData.order_index}
                         onChange={(e) => setFormData({ ...formData, order_index: parseInt(e.target.value) })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        難易度スコア (1-5)
-                      </label>
-                      <input
-                        type="number"
-                        min="1"
-                        max="5"
-                        value={formData.difficulty_score}
-                        onChange={(e) => setFormData({ ...formData, difficulty_score: parseFloat(e.target.value) })}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
                       />
                     </div>
@@ -1140,428 +1063,125 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
                 <div className="space-y-4">
                   <div className="bg-blue-50 p-3 rounded-lg">
                     <p className="text-sm text-blue-700">
-                      3つのセッションで完全に異なるAIキャラクターを設定できます
+                      全てのセッションで同じAIキャラクター設定を使用します
                     </p>
                   </div>
 
-                  {/* セッション別設定 */}
-                  <div className="border-t pt-4">
-                    <h4 className="font-medium text-gray-700 mb-3">セッション別設定</h4>
-                    <p className="text-sm text-gray-500 mb-3">
-                      3つのセッションで異なるシチュエーションと性格を設定できます
-                    </p>
-                    
-                    <div className="space-y-4">
-                      {/* セッション1 */}
-                      <div className="bg-gray-50 p-4 rounded-lg">
-                        <h5 className="font-medium text-gray-800 mb-3">セッション1（初級）</h5>
-                        <div className="space-y-3">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                キャラクター役割
-                              </label>
-                              <input
-                                type="text"
-                                value={formData.session_1_role}
-                                onChange={(e) => setFormData({ ...formData, session_1_role: e.target.value })}
-                                placeholder="例: 美容室のお客様"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                シチュエーション
-                              </label>
-                              <input
-                                type="text"
-                                value={formData.session_1_situation}
-                                onChange={(e) => setFormData({ ...formData, session_1_situation: e.target.value })}
-                                placeholder="例: 初回来店、カットの相談"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                              />
-                            </div>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              キャラクター背景
-                            </label>
-                            <textarea
-                              value={formData.session_1_background}
-                              onChange={(e) => setFormData({ ...formData, session_1_background: e.target.value })}
-                              rows={2}
-                              placeholder="例: 高級サロンを訪れるお客様。プロフェッショナルで丁寧なサービスを期待している"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              性格特性（カンマ区切り）
-                            </label>
-                            <input
-                              type="text"
-                              value={formData.session_1_personality}
-                              onChange={(e) => setFormData({ ...formData, session_1_personality: e.target.value })}
-                              placeholder="例: 親切, 理解がある, 初めてのお客様"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                            />
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                場所
-                              </label>
-                              <input
-                                type="text"
-                                value={formData.session_1_location}
-                                onChange={(e) => setFormData({ ...formData, session_1_location: e.target.value })}
-                                placeholder="例: 高級美容サロン"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                会話の目的
-                              </label>
-                              <input
-                                type="text"
-                                value={formData.session_1_objective}
-                                onChange={(e) => setFormData({ ...formData, session_1_objective: e.target.value })}
-                                placeholder="例: ヘアスタイルの相談"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                              />
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                態度
-                              </label>
-                              <input
-                                type="text"
-                                value={formData.session_1_attitude}
-                                onChange={(e) => setFormData({ ...formData, session_1_attitude: e.target.value })}
-                                placeholder="例: 協力的"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                話し方
-                              </label>
-                              <input
-                                type="text"
-                                value={formData.session_1_speaking_style}
-                                onChange={(e) => setFormData({ ...formData, session_1_speaking_style: e.target.value })}
-                                placeholder="例: カジュアルでフレンドリー"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                              />
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                難易度レベル
-                              </label>
-                              <select
-                                value={formData.session_1_difficulty_level}
-                                onChange={(e) => setFormData({ ...formData, session_1_difficulty_level: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                              >
-                                <option value="beginner">初級</option>
-                                <option value="intermediate">中級</option>
-                                <option value="advanced">上級</option>
-                              </select>
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                評価ポイント（カンマ区切り）
-                              </label>
-                              <input
-                                type="text"
-                                value={formData.session_1_focus_points}
-                                onChange={(e) => setFormData({ ...formData, session_1_focus_points: e.target.value })}
-                                placeholder="例: 基本的な挨拶, 丁寧な対応"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                              />
-                            </div>
-                          </div>
-                        </div>
+                  {/* 共通AI設定 */}
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          キャラクター役割
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.ai_role}
+                          onChange={(e) => setFormData({ ...formData, ai_role: e.target.value })}
+                          placeholder="例: 美容室のお客様"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        />
                       </div>
-
-                      {/* セッション2 */}
-                      <div className="bg-gray-50 p-4 rounded-lg">
-                        <h5 className="font-medium text-gray-800 mb-3">セッション2（中級）</h5>
-                        <div className="space-y-3">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                キャラクター役割
-                              </label>
-                              <input
-                                type="text"
-                                value={formData.session_2_role}
-                                onChange={(e) => setFormData({ ...formData, session_2_role: e.target.value })}
-                                placeholder="例: 美容室のお客様"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                シチュエーション
-                              </label>
-                              <input
-                                type="text"
-                                value={formData.session_2_situation}
-                                onChange={(e) => setFormData({ ...formData, session_2_situation: e.target.value })}
-                                placeholder="例: 常連客、トリートメントの相談"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                              />
-                            </div>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              キャラクター背景
-                            </label>
-                            <textarea
-                              value={formData.session_2_background}
-                              onChange={(e) => setFormData({ ...formData, session_2_background: e.target.value })}
-                              rows={2}
-                              placeholder="例: 月に1回来店する常連客。いつも同じスタイリストを指名"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              性格特性（カンマ区切り）
-                            </label>
-                            <input
-                              type="text"
-                              value={formData.session_2_personality}
-                              onChange={(e) => setFormData({ ...formData, session_2_personality: e.target.value })}
-                              placeholder="例: フレンドリー, 話し好き, 常連客"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                            />
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                場所
-                              </label>
-                              <input
-                                type="text"
-                                value={formData.session_2_location}
-                                onChange={(e) => setFormData({ ...formData, session_2_location: e.target.value })}
-                                placeholder="例: 高級美容サロン"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                会話の目的
-                              </label>
-                              <input
-                                type="text"
-                                value={formData.session_2_objective}
-                                onChange={(e) => setFormData({ ...formData, session_2_objective: e.target.value })}
-                                placeholder="例: カラーリングの提案"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                              />
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                態度
-                              </label>
-                              <input
-                                type="text"
-                                value={formData.session_2_attitude}
-                                onChange={(e) => setFormData({ ...formData, session_2_attitude: e.target.value })}
-                                placeholder="例: フレンドリー"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                話し方
-                              </label>
-                              <input
-                                type="text"
-                                value={formData.session_2_speaking_style}
-                                onChange={(e) => setFormData({ ...formData, session_2_speaking_style: e.target.value })}
-                                placeholder="例: カジュアルでフレンドリー"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                              />
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                難易度レベル
-                              </label>
-                              <select
-                                value={formData.session_2_difficulty_level}
-                                onChange={(e) => setFormData({ ...formData, session_2_difficulty_level: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                              >
-                                <option value="beginner">初級</option>
-                                <option value="intermediate">中級</option>
-                                <option value="advanced">上級</option>
-                              </select>
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                評価ポイント（カンマ区切り）
-                              </label>
-                              <input
-                                type="text"
-                                value={formData.session_2_focus_points}
-                                onChange={(e) => setFormData({ ...formData, session_2_focus_points: e.target.value })}
-                                placeholder="例: 自然な会話, 提案の表現"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                              />
-                            </div>
-                          </div>
-                        </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          シチュエーション
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.ai_situation}
+                          onChange={(e) => setFormData({ ...formData, ai_situation: e.target.value })}
+                          placeholder="例: 初回来店、カットの相談"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        />
                       </div>
-
-                      {/* セッション3 */}
-                      <div className="bg-gray-50 p-4 rounded-lg">
-                        <h5 className="font-medium text-gray-800 mb-3">セッション3（上級）</h5>
-                        <div className="space-y-3">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                キャラクター役割
-                              </label>
-                              <input
-                                type="text"
-                                value={formData.session_3_role}
-                                onChange={(e) => setFormData({ ...formData, session_3_role: e.target.value })}
-                                placeholder="例: 美容室のお客様"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                シチュエーション
-                              </label>
-                              <input
-                                type="text"
-                                value={formData.session_3_situation}
-                                onChange={(e) => setFormData({ ...formData, session_3_situation: e.target.value })}
-                                placeholder="例: VIP客、特別なサービスの相談"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                              />
-                            </div>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              キャラクター背景
-                            </label>
-                            <textarea
-                              value={formData.session_3_background}
-                              onChange={(e) => setFormData({ ...formData, session_3_background: e.target.value })}
-                              rows={2}
-                              placeholder="例: 有名企業のCEO。高品質なサービスを求めている"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              性格特性（カンマ区切り）
-                            </label>
-                            <input
-                              type="text"
-                              value={formData.session_3_personality}
-                              onChange={(e) => setFormData({ ...formData, session_3_personality: e.target.value })}
-                              placeholder="例: プロフェッショナル, 要求が高い, VIP客"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                            />
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                場所
-                              </label>
-                              <input
-                                type="text"
-                                value={formData.session_3_location}
-                                onChange={(e) => setFormData({ ...formData, session_3_location: e.target.value })}
-                                placeholder="例: 高級美容サロン"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                会話の目的
-                              </label>
-                              <input
-                                type="text"
-                                value={formData.session_3_objective}
-                                onChange={(e) => setFormData({ ...formData, session_3_objective: e.target.value })}
-                                placeholder="例: 特別なイベントのヘアメイク"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                              />
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                態度
-                              </label>
-                              <input
-                                type="text"
-                                value={formData.session_3_attitude}
-                                onChange={(e) => setFormData({ ...formData, session_3_attitude: e.target.value })}
-                                placeholder="例: 要求が高い"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                話し方
-                              </label>
-                              <input
-                                type="text"
-                                value={formData.session_3_speaking_style}
-                                onChange={(e) => setFormData({ ...formData, session_3_speaking_style: e.target.value })}
-                                placeholder="例: フォーマル"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                              />
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                難易度レベル
-                              </label>
-                              <select
-                                value={formData.session_3_difficulty_level}
-                                onChange={(e) => setFormData({ ...formData, session_3_difficulty_level: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                              >
-                                <option value="beginner">初級</option>
-                                <option value="intermediate">中級</option>
-                                <option value="advanced">上級</option>
-                              </select>
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                評価ポイント（カンマ区切り）
-                              </label>
-                              <input
-                                type="text"
-                                value={formData.session_3_focus_points}
-                                onChange={(e) => setFormData({ ...formData, session_3_focus_points: e.target.value })}
-                                placeholder="例: 高度な接客, プロフェッショナルな対応"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                              />
-                            </div>
-                          </div>
-                        </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        キャラクター背景
+                      </label>
+                      <textarea
+                        value={formData.ai_background}
+                        onChange={(e) => setFormData({ ...formData, ai_background: e.target.value })}
+                        rows={2}
+                        placeholder="例: 高級サロンを訪れるお客様。プロフェッショナルで丁寧なサービスを期待している"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        性格特性（カンマ区切り）
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.ai_personality}
+                        onChange={(e) => setFormData({ ...formData, ai_personality: e.target.value })}
+                        placeholder="例: 親切, 理解がある, フレンドリー"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          場所
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.ai_location}
+                          onChange={(e) => setFormData({ ...formData, ai_location: e.target.value })}
+                          placeholder="例: 高級美容サロン"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        />
                       </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          会話の目的
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.ai_objective}
+                          onChange={(e) => setFormData({ ...formData, ai_objective: e.target.value })}
+                          placeholder="例: ヘアスタイルの相談"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          態度
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.ai_attitude}
+                          onChange={(e) => setFormData({ ...formData, ai_attitude: e.target.value })}
+                          placeholder="例: 協力的"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          話し方
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.ai_speaking_style}
+                          onChange={(e) => setFormData({ ...formData, ai_speaking_style: e.target.value })}
+                          placeholder="例: カジュアルでフレンドリー"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        評価ポイント（カンマ区切り）
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.ai_focus_points}
+                        onChange={(e) => setFormData({ ...formData, ai_focus_points: e.target.value })}
+                        placeholder="例: 基本的な挨拶, 丁寧な対応, 自然な会話"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      />
                     </div>
                   </div>
                 </div>

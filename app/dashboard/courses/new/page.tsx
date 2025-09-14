@@ -1,29 +1,15 @@
 'use client'
 
-import { useState, useEffect, use } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Save, Loader2, Upload, X, Image } from 'lucide-react'
-import { createClient } from '../../../../../lib/supabase'
-import { CURRICULUM_CATEGORIES } from '../../../../../lib/constants/categories'
+import { createClient } from '../../../../lib/supabase'
+import { CURRICULUM_CATEGORIES } from '../../../../lib/constants/categories'
 
-interface Curriculum {
-  id: string
-  title: string
-  description: string | null
-  difficulty_level: number
-  category: string
-  image_url: string | null
-  prerequisites: string[] | null
-  is_active: boolean | null
-}
-
-export default function EditCoursePage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+export default function NewCoursePage() {
   const router = useRouter()
-  const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [curriculum, setCurriculum] = useState<Curriculum | null>(null)
   const [isComposing, setIsComposing] = useState(false)
   const [formData, setFormData] = useState({
     title: '',
@@ -38,52 +24,14 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [uploadingImage, setUploadingImage] = useState(false)
 
-  useEffect(() => {
-    fetchCurriculum()
-  }, [id])
-
-  async function fetchCurriculum() {
-    try {
-      const supabase = createClient()
-      const { data, error } = await supabase
-        .from('curriculums')
-        .select('*')
-        .eq('id', id)
-        .single()
-
-      if (error) throw error
-
-      setCurriculum(data)
-      setFormData({
-        title: data.title || '',
-        description: data.description || '',
-        difficulty_level: data.difficulty_level || 1,
-        category: data.category || '',
-        image_url: data.image_url || '',
-        prerequisites: data.prerequisites || [],
-        is_active: data.is_active || false
-      })
-      
-      // 既存の画像URLをプレビューに設定
-      if (data.image_url) {
-        setImagePreview(data.image_url)
-      }
-    } catch (error) {
-      console.error('Error fetching curriculum:', error)
-      alert('カリキュラムの取得に失敗しました')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  async function handleImageUpload() {
-    if (!imageFile) return formData.image_url
+  async function handleImageUpload(curriculumId: string) {
+    if (!imageFile) return ''
 
     setUploadingImage(true)
     try {
       const supabase = createClient()
       const fileExt = imageFile.name.split('.').pop()
-      const fileName = `${id}-${Date.now()}.${fileExt}`
+      const fileName = `${curriculumId}-${Date.now()}.${fileExt}`
       const filePath = `curriculum-images/${fileName}`
 
       // 画像をアップロード
@@ -105,7 +53,7 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
     } catch (error) {
       console.error('Error uploading image:', error)
       alert('画像のアップロードに失敗しました')
-      return formData.image_url
+      return ''
     } finally {
       setUploadingImage(false)
     }
@@ -117,34 +65,47 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
 
     try {
       const supabase = createClient()
-      
-      // 画像をアップロード（新しい画像が選択されている場合）
-      let imageUrl = formData.image_url
-      if (imageFile) {
-        imageUrl = await handleImageUpload()
-      }
 
-      const { error } = await supabase
+      // 新しいカリキュラムを作成
+      const { data: newCurriculum, error } = await supabase
         .from('curriculums')
-        .update({
+        .insert({
           title: formData.title,
           description: formData.description || null,
           difficulty_level: formData.difficulty_level,
           category: formData.category,
-          image_url: imageUrl || null,
+          image_url: null, // 一旦nullで作成
           prerequisites: formData.prerequisites.length > 0 ? formData.prerequisites : null,
           is_active: formData.is_active,
+          created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         })
-        .eq('id', id)
+        .select()
+        .single()
 
       if (error) throw error
 
-      alert('カリキュラムを更新しました')
-      router.push(`/dashboard/courses/${id}`)
+      // 画像をアップロード（カリキュラム作成後）
+      if (imageFile && newCurriculum) {
+        const imageUrl = await handleImageUpload(newCurriculum.id)
+        if (imageUrl) {
+          // 画像URLを更新
+          const { error: updateError } = await supabase
+            .from('curriculums')
+            .update({ image_url: imageUrl })
+            .eq('id', newCurriculum.id)
+
+          if (updateError) {
+            console.error('Error updating image URL:', updateError)
+          }
+        }
+      }
+
+      alert('カリキュラムを作成しました')
+      router.push('/dashboard/courses')
     } catch (error) {
-      console.error('Error updating curriculum:', error)
-      alert('カリキュラムの更新に失敗しました')
+      console.error('Error creating curriculum:', error)
+      alert('カリキュラムの作成に失敗しました')
     } finally {
       setSaving(false)
     }
@@ -158,7 +119,7 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
         alert('画像ファイルを選択してください')
         return
       }
-      
+
       // ファイルサイズの検証（5MB以下）
       if (file.size > 5 * 1024 * 1024) {
         alert('画像サイズは5MB以下にしてください')
@@ -166,7 +127,7 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
       }
 
       setImageFile(file)
-      
+
       // プレビュー用のURLを生成
       const reader = new FileReader()
       reader.onloadend = () => {
@@ -179,7 +140,6 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
   const removeImage = () => {
     setImageFile(null)
     setImagePreview(null)
-    setFormData({ ...formData, image_url: '' })
   }
 
   const handlePrerequisitesChange = (value: string) => {
@@ -187,39 +147,23 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
     setFormData({ ...formData, prerequisites })
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
-      </div>
-    )
-  }
-
-  if (!curriculum) {
-    return (
-      <div className="bg-red-50 p-4 rounded-lg">
-        <p className="text-red-600">カリキュラムが見つかりません</p>
-      </div>
-    )
-  }
-
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-6">
         <Link
-          href={`/dashboard/courses/${id}`}
+          href="/dashboard/courses"
           className="inline-flex items-center text-gray-600 hover:text-gray-900"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          カリキュラム詳細に戻る
+          カリキュラム一覧に戻る
         </Link>
       </div>
 
       <div className="bg-white rounded-lg shadow p-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">カリキュラム編集</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-6">新規カリキュラム作成</h1>
 
-        <form 
-          onSubmit={handleSubmit} 
+        <form
+          onSubmit={handleSubmit}
           className="space-y-6"
           onKeyDown={(e) => {
             // Prevent form submission on Enter key
@@ -308,13 +252,13 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
             <label className="block text-sm font-medium text-gray-700 mb-2">
               カリキュラム画像
             </label>
-            
+
             {/* 画像プレビュー */}
             {imagePreview && (
               <div className="mb-4 relative">
-                <img 
-                  src={imagePreview} 
-                  alt="Preview" 
+                <img
+                  src={imagePreview}
+                  alt="Preview"
                   className="w-full max-w-md h-48 object-cover rounded-lg border border-gray-300"
                 />
                 <button
@@ -343,7 +287,7 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
                   </span>
                 </div>
               </label>
-              
+
               {!imagePreview && (
                 <div className="flex items-center text-sm text-gray-500">
                   <Image className="h-4 w-4 mr-1" />
@@ -389,7 +333,7 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
 
           <div className="flex justify-end space-x-3">
             <Link
-              href={`/dashboard/courses/${id}`}
+              href="/dashboard/courses"
               className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
             >
               キャンセル
@@ -402,12 +346,12 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
               {saving ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  保存中...
+                  作成中...
                 </>
               ) : (
                 <>
                   <Save className="h-4 w-4 mr-2" />
-                  保存
+                  作成
                 </>
               )}
             </button>
