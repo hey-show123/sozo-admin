@@ -133,26 +133,64 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
         is_active: formData.is_active,
       })
 
+      // まず現在のユーザーを確認
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      console.log('Current user:', user)
+      if (userError) {
+        console.error('User auth error:', userError)
+      }
+
+      // 更新データを準備
+      const updateData = {
+        title: formData.title,
+        description: formData.description || null,
+        difficulty_level: formData.difficulty_level,
+        category: formData.category,
+        image_url: imageUrl || null,
+        is_active: formData.is_active,
+        updated_at: new Date().toISOString()
+      }
+
+      console.log('Sending update data:', updateData)
+      console.log('Target ID:', id)
+
       const { data, error } = await supabase
         .from('curriculums')
-        .update({
-          title: formData.title,
-          description: formData.description || null,
-          difficulty_level: formData.difficulty_level,
-          category: formData.category,
-          image_url: imageUrl || null,
-          is_active: formData.is_active,
-          updated_at: new Date().toISOString()
-        })
+        .update(updateData)
         .eq('id', id)
         .select()
+        .single()
 
       if (error) {
-        console.error('Supabase update error:', error)
+        console.error('Supabase update error details:', {
+          error,
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        })
         throw error
       }
 
-      console.log('Update successful:', data)
+      if (!data) {
+        console.error('No data returned from update')
+        throw new Error('更新は成功しましたが、データが返されませんでした')
+      }
+
+      console.log('Update successful, returned data:', data)
+
+      // 更新後のデータを再取得して確認
+      const { data: verifyData, error: verifyError } = await supabase
+        .from('curriculums')
+        .select('*')
+        .eq('id', id)
+        .single()
+
+      console.log('Verification after update:', verifyData)
+      if (verifyError) {
+        console.error('Verification error:', verifyError)
+      }
+
       alert('カリキュラムを更新しました')
       router.push(`/dashboard/courses/${id}`)
     } catch (error: any) {
