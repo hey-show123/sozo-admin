@@ -14,7 +14,6 @@ interface Curriculum {
   difficulty_level: number
   category: string
   image_url: string | null
-  prerequisites: string[] | null
   is_active: boolean | null
 }
 
@@ -31,7 +30,6 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
     difficulty_level: 1,
     category: '',
     image_url: '',
-    prerequisites: [] as string[],
     is_active: false
   })
   const [imageFile, setImageFile] = useState<File | null>(null)
@@ -60,7 +58,6 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
         difficulty_level: data.difficulty_level || 1,
         category: data.category || '',
         image_url: data.image_url || '',
-        prerequisites: data.prerequisites || [],
         is_active: data.is_active || false
       })
       
@@ -132,7 +129,6 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
           difficulty_level: formData.difficulty_level,
           category: formData.category,
           image_url: imageUrl || null,
-          prerequisites: formData.prerequisites.length > 0 ? formData.prerequisites : null,
           is_active: formData.is_active,
           updated_at: new Date().toISOString()
         })
@@ -182,10 +178,6 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
     setFormData({ ...formData, image_url: '' })
   }
 
-  const handlePrerequisitesChange = (value: string) => {
-    const prerequisites = value.split(',').map(item => item.trim()).filter(item => item)
-    setFormData({ ...formData, prerequisites })
-  }
 
   if (loading) {
     return (
@@ -358,20 +350,6 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
                 画像をアップロード中...
               </div>
             )}
-          </div>
-
-          <div>
-            <label htmlFor="prerequisites" className="block text-sm font-medium text-gray-700 mb-2">
-              前提条件（カンマ区切り）
-            </label>
-            <input
-              type="text"
-              id="prerequisites"
-              value={formData.prerequisites.join(', ')}
-              onChange={(e) => handlePrerequisitesChange(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="例: 基本的な挨拶, ひらがなの読み書き"
-            />
           </div>
 
           <div className="flex items-center">

@@ -17,7 +17,6 @@ export default function NewCoursePage() {
     difficulty_level: 1,
     category: '',
     image_url: '',
-    prerequisites: [] as string[],
     is_active: false
   })
   const [imageFile, setImageFile] = useState<File | null>(null)
@@ -75,7 +74,6 @@ export default function NewCoursePage() {
           difficulty_level: formData.difficulty_level,
           category: formData.category,
           image_url: null, // 一旦nullで作成
-          prerequisites: formData.prerequisites.length > 0 ? formData.prerequisites : null,
           is_active: formData.is_active,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
@@ -142,10 +140,6 @@ export default function NewCoursePage() {
     setImagePreview(null)
   }
 
-  const handlePrerequisitesChange = (value: string) => {
-    const prerequisites = value.split(',').map(item => item.trim()).filter(item => item)
-    setFormData({ ...formData, prerequisites })
-  }
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -302,20 +296,6 @@ export default function NewCoursePage() {
                 画像をアップロード中...
               </div>
             )}
-          </div>
-
-          <div>
-            <label htmlFor="prerequisites" className="block text-sm font-medium text-gray-700 mb-2">
-              前提条件（カンマ区切り）
-            </label>
-            <input
-              type="text"
-              id="prerequisites"
-              value={formData.prerequisites.join(', ')}
-              onChange={(e) => handlePrerequisitesChange(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="例: 基本的な挨拶, ひらがなの読み書き"
-            />
           </div>
 
           <div className="flex items-center">
