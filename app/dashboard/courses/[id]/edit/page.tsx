@@ -154,12 +154,11 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
       console.log('Sending update data:', updateData)
       console.log('Target ID:', id)
 
-      const { data, error } = await supabase
+      // 更新を実行（返り値を期待しない）
+      const { error } = await supabase
         .from('curriculums')
         .update(updateData)
         .eq('id', id)
-        .select()
-        .single()
 
       if (error) {
         console.error('Supabase update error details:', {
@@ -172,12 +171,7 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
         throw error
       }
 
-      if (!data) {
-        console.error('No data returned from update')
-        throw new Error('更新は成功しましたが、データが返されませんでした')
-      }
-
-      console.log('Update successful, returned data:', data)
+      console.log('Update query executed successfully')
 
       // 更新後のデータを再取得して確認
       const { data: verifyData, error: verifyError } = await supabase
