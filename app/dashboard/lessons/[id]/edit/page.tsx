@@ -64,6 +64,7 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
     application: false,
     ai: false
   })
+  const [activeAiTab, setActiveAiTab] = useState<'session1' | 'session2' | 'session3'>('session1')
   
   const [characterSettings, setCharacterSettings] = useState<CharacterSettings[]>([
     { name: 'Staff', voice: 'nova' },
@@ -82,11 +83,22 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
     dialogues: [] as Dialogue[],
     vocabulary_questions: [] as VocabularyQuestion[],
     application_practice: [] as ApplicationPractice[],
-    // AI conversation settings - 簡略化（4つのパラメータ）
-    ai_role: '',  // AIの役割
-    user_role: '',  // ユーザーの役割
-    ai_situation: '',  // シチュエーション
-    ai_personality: '',  // AIの性格特性
+    // AI conversation settings - 3セッション個別設定
+    // セッション1
+    session1_ai_role: '',  // AIの役割
+    session1_user_role: '',  // ユーザーの役割
+    session1_situation: '',  // シチュエーション
+    session1_personality: '',  // AIの性格特性
+    // セッション2
+    session2_ai_role: '',
+    session2_user_role: '',
+    session2_situation: '',
+    session2_personality: '',
+    // セッション3
+    session3_ai_role: '',
+    session3_user_role: '',
+    session3_situation: '',
+    session3_personality: ''
     // フィードバック設定
     ai_feedback_style: 'encouraging',
     ai_evaluation_focus: '文法,語彙,流暢さ,適切さ',
@@ -148,11 +160,22 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
           dialogues: data.dialogues || [],
           vocabulary_questions: data.vocabulary_questions || [],
           application_practice: data.application_practice || [],
-          // AI設定 - 簡略化された4つのパラメータ
-          ai_role: aiPromptData?.session_1_role || '',
-          user_role: aiPromptData?.user_role || '',
-          ai_situation: aiPromptData?.session_1_situation || '',
-          ai_personality: aiPromptData?.session_1_personality || '',
+          // AI設定 - 3セッション個別設定
+          // セッション1
+          session1_ai_role: aiPromptData?.session_1_role || '',
+          session1_user_role: aiPromptData?.user_role || '',
+          session1_situation: aiPromptData?.session_1_situation || '',
+          session1_personality: aiPromptData?.session_1_personality || '',
+          // セッション2
+          session2_ai_role: aiPromptData?.session_2_role || '',
+          session2_user_role: aiPromptData?.user_role || '',
+          session2_situation: aiPromptData?.session_2_situation || '',
+          session2_personality: aiPromptData?.session_2_personality || '',
+          // セッション3
+          session3_ai_role: aiPromptData?.session_3_role || '',
+          session3_user_role: aiPromptData?.user_role || '',
+          session3_situation: aiPromptData?.session_3_situation || '',
+          session3_personality: aiPromptData?.session_3_personality || '',
           // フィードバック設定（デフォルト値）
           ai_feedback_style: 'encouraging',
           ai_evaluation_focus: '文法,語彙,流暢さ,適切さ',
@@ -186,13 +209,28 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
           
           // AI設定を読み込み
           if (content.session_settings) {
-            // セッション1の設定を共通設定として使用
-            const session = content.session_settings['session_1']
-            if (session) {
-              baseFormData['ai_role'] = session.character_name || ''
-              baseFormData['user_role'] = session.user_role || ''
-              baseFormData['ai_situation'] = session.situation || ''
-              baseFormData['ai_personality'] = (session.personality_traits || []).join('、')
+            // 各セッションの設定を個別に読み込み
+            const session1 = content.session_settings['session_1']
+            const session2 = content.session_settings['session_2']
+            const session3 = content.session_settings['session_3']
+
+            if (session1) {
+              baseFormData['session1_ai_role'] = session1.character_name || ''
+              baseFormData['session1_user_role'] = session1.user_role || ''
+              baseFormData['session1_situation'] = session1.situation || ''
+              baseFormData['session1_personality'] = (session1.personality_traits || []).join('、')
+            }
+            if (session2) {
+              baseFormData['session2_ai_role'] = session2.character_name || ''
+              baseFormData['session2_user_role'] = session2.user_role || ''
+              baseFormData['session2_situation'] = session2.situation || ''
+              baseFormData['session2_personality'] = (session2.personality_traits || []).join('、')
+            }
+            if (session3) {
+              baseFormData['session3_ai_role'] = session3.character_name || ''
+              baseFormData['session3_user_role'] = session3.user_role || ''
+              baseFormData['session3_situation'] = session3.situation || ''
+              baseFormData['session3_personality'] = (session3.personality_traits || []).join('、')
             }
           } else if (content.character_setting) {
             // 既存データ形式から読み込み
@@ -203,22 +241,39 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
             
             // シナリオ設定
             const situation = content.scenario_setting?.situation || ''
-            
-            // 共通設定として適用
-            baseFormData['ai_role'] = role
-            baseFormData['user_role'] = '美容師'  // デフォルト
-            baseFormData['ai_situation'] = situation
-            baseFormData['ai_personality'] = (personality.traits || []).join('、')
+
+            // セッション1の設定として適用（互換性のため）
+            baseFormData['session1_ai_role'] = role
+            baseFormData['session1_user_role'] = '美容師'  // デフォルト
+            baseFormData['session1_situation'] = situation
+            baseFormData['session1_personality'] = (personality.traits || []).join('、')
+            // セッション2,3は同じ値で初期化
+            baseFormData['session2_ai_role'] = role
+            baseFormData['session2_user_role'] = '美容師'
+            baseFormData['session2_situation'] = situation
+            baseFormData['session2_personality'] = (personality.traits || []).join('、')
+            baseFormData['session3_ai_role'] = role
+            baseFormData['session3_user_role'] = '美容師'
+            baseFormData['session3_situation'] = situation
+            baseFormData['session3_personality'] = (personality.traits || []).join('、')
           } else if (content.system_prompt) {
             // system_prompt形式から読み込み
             const displayName = content.preparation_display?.ai_display_name || ''
             const description = content.preparation_display?.description || ''
             
-            baseFormData['ai_role'] = displayName
-            baseFormData['ai_background'] = description
-            baseFormData['ai_situation'] = ''
-            baseFormData['ai_personality'] = ''
-            baseFormData['ai_instructions'] = content.system_prompt || ''
+            baseFormData['session1_ai_role'] = displayName
+            baseFormData['session1_user_role'] = '美容師'
+            baseFormData['session1_situation'] = description
+            baseFormData['session1_personality'] = ''
+            // セッション2,3も同じ値で初期化
+            baseFormData['session2_ai_role'] = displayName
+            baseFormData['session2_user_role'] = '美容師'
+            baseFormData['session2_situation'] = description
+            baseFormData['session2_personality'] = ''
+            baseFormData['session3_ai_role'] = displayName
+            baseFormData['session3_user_role'] = '美容師'
+            baseFormData['session3_situation'] = description
+            baseFormData['session3_personality'] = ''
           }
           
           // フィードバック設定を読み込み
@@ -298,7 +353,7 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
 
       console.log('Update successful:', data)
 
-      // AIプロンプト設定を保存（簡略化した4パラメータ）
+      // AIプロンプト設定を保存（3セッション個別設定）
       const aiPromptData = {
         lesson_id: lessonId,
         activity_type: 'ai_conversation',
@@ -306,24 +361,24 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
         prompt_category: 'conversation',
         prompt_content: JSON.stringify({
         session_settings: {
-          // 全セッションで同じ設定を使用
+          // 各セッション個別設定
           session_1: {
-            character_name: formData.ai_role || '美容室のお客様',
-            user_role: formData.user_role || '美容師',
-            personality_traits: formData.ai_personality ? formData.ai_personality.split('、').map(s => s.trim()) : ['親切', '理解がある'],
-            situation: formData.ai_situation || ''
+            character_name: formData.session1_ai_role || '美容室のお客様',
+            user_role: formData.session1_user_role || '美容師',
+            personality_traits: formData.session1_personality ? formData.session1_personality.split('、').map(s => s.trim()) : ['親切', '理解がある'],
+            situation: formData.session1_situation || ''
           },
           session_2: {
-            character_name: formData.ai_role || '美容室のお客様',
-            user_role: formData.user_role || '美容師',
-            personality_traits: formData.ai_personality ? formData.ai_personality.split('、').map(s => s.trim()) : ['親切', '理解がある'],
-            situation: formData.ai_situation || ''
+            character_name: formData.session2_ai_role || '美容室のお客様',
+            user_role: formData.session2_user_role || '美容師',
+            personality_traits: formData.session2_personality ? formData.session2_personality.split('、').map(s => s.trim()) : ['親切', '理解がある'],
+            situation: formData.session2_situation || ''
           },
           session_3: {
-            character_name: formData.ai_role || '美容室のお客様',
-            user_role: formData.user_role || '美容師',
-            personality_traits: formData.ai_personality ? formData.ai_personality.split('、').map(s => s.trim()) : ['親切', '理解がある'],
-            situation: formData.ai_situation || ''
+            character_name: formData.session3_ai_role || '美容室のお客様',
+            user_role: formData.session3_user_role || '美容師',
+            personality_traits: formData.session3_personality ? formData.session3_personality.split('、').map(s => s.trim()) : ['親切', '理解がある'],
+            situation: formData.session3_situation || ''
           }
         },
         evaluation_settings: {
@@ -339,8 +394,8 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
         },
         preparation_display: {
           title: 'AI会話実践',
-          description: formData.ai_situation || '',
-          ai_display_name: formData.ai_role || '美容室のお客様',
+          description: formData.session1_situation || '',  // セッション1の情報を表示用に使用
+          ai_display_name: formData.session1_ai_role || '美容室のお客様',
           key_points: [
             '今日学んだフレーズを使ってみましょう',
             'AIは優しいので間違いを恐れずに',
@@ -348,19 +403,19 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
           ]
         }
       }),
-        // 新しいフラット形式のカラムにも保存（全セッション同じ値）
-        session_1_role: formData.ai_role,
-        session_1_situation: formData.ai_situation,
-        session_1_personality: formData.ai_personality,
+        // 新しいフラット形式のカラムにも保存（3セッション個別設定）
+        session_1_role: formData.session1_ai_role,
+        session_1_situation: formData.session1_situation,
+        session_1_personality: formData.session1_personality,
         session_1_difficulty_level: 'standard',
-        user_role: formData.user_role,
-        session_2_role: formData.ai_role,
-        session_2_situation: formData.ai_situation,
-        session_2_personality: formData.ai_personality,
+        user_role: formData.session1_user_role,  // セッション1のuser_roleを共通で使用
+        session_2_role: formData.session2_ai_role,
+        session_2_situation: formData.session2_situation,
+        session_2_personality: formData.session2_personality,
         session_2_difficulty_level: 'standard',
-        session_3_role: formData.ai_role,
-        session_3_situation: formData.ai_situation,
-        session_3_personality: formData.ai_personality,
+        session_3_role: formData.session3_ai_role,
+        session_3_situation: formData.session3_situation,
+        session_3_personality: formData.session3_personality,
         session_3_difficulty_level: 'standard',
         ai_settings: {
           model: 'gpt-4o-mini',
@@ -1093,67 +1148,220 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
                 <div className="space-y-4">
                   <div className="bg-blue-50 p-3 rounded-lg">
                     <p className="text-sm text-blue-700">
-                      AI会話設定を簡素化しました。必要最小限の4つの設定のみ入力してください。
+                      3つのセッションでそれぞれ異なるAIの役割を設定できます。各セッションで4つのパラメータを入力してください。
                     </p>
                   </div>
 
-                  {/* 簡略化されたAI設定 */}
-                  <div className="space-y-3">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          AIの役割 <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.ai_role}
-                          onChange={(e) => setFormData({ ...formData, ai_role: e.target.value })}
-                          placeholder="例: 美容室のお客様"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          ユーザーの役割 <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.user_role}
-                          onChange={(e) => setFormData({ ...formData, user_role: e.target.value })}
-                          placeholder="例: 美容師・スタッフ"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                          required
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        シチュエーション <span className="text-red-500">*</span>
-                      </label>
-                      <textarea
-                        value={formData.ai_situation}
-                        onChange={(e) => setFormData({ ...formData, ai_situation: e.target.value })}
-                        rows={2}
-                        placeholder="例: 初めての来店でヘアカットを希望しているお客様。好みのスタイルを相談中。"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        AIの性格特性 <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.ai_personality}
-                        onChange={(e) => setFormData({ ...formData, ai_personality: e.target.value })}
-                        placeholder="例: 親切、理解がある、フレンドリー、忍耐強い"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                        required
-                      />
-                    </div>
+                  {/* セッションタブ */}
+                  <div className="flex space-x-2 border-b">
+                    <button
+                      type="button"
+                      onClick={() => setActiveAiTab('session1')}
+                      className={`px-4 py-2 font-medium ${activeAiTab === 'session1'
+                        ? 'text-pink-600 border-b-2 border-pink-600'
+                        : 'text-gray-600 hover:text-gray-900'}`}
+                    >
+                      セッション1
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveAiTab('session2')}
+                      className={`px-4 py-2 font-medium ${activeAiTab === 'session2'
+                        ? 'text-pink-600 border-b-2 border-pink-600'
+                        : 'text-gray-600 hover:text-gray-900'}`}
+                    >
+                      セッション2
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveAiTab('session3')}
+                      className={`px-4 py-2 font-medium ${activeAiTab === 'session3'
+                        ? 'text-pink-600 border-b-2 border-pink-600'
+                        : 'text-gray-600 hover:text-gray-900'}`}
+                    >
+                      セッション3
+                    </button>
                   </div>
+
+                  {/* セッション1の設定 */}
+                  {activeAiTab === 'session1' && (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            AIの役割 <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={formData.session1_ai_role}
+                            onChange={(e) => setFormData({ ...formData, session1_ai_role: e.target.value })}
+                            placeholder="例: 美容室のお客様"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            ユーザーの役割 <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={formData.session1_user_role}
+                            onChange={(e) => setFormData({ ...formData, session1_user_role: e.target.value })}
+                            placeholder="例: 美容師・スタッフ"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          シチュエーション <span className="text-red-500">*</span>
+                        </label>
+                        <textarea
+                          value={formData.session1_situation}
+                          onChange={(e) => setFormData({ ...formData, session1_situation: e.target.value })}
+                          rows={2}
+                          placeholder="例: 初めての来店でヘアカットを希望しているお客様。好みのスタイルを相談中。"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          AIの性格特性 <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.session1_personality}
+                          onChange={(e) => setFormData({ ...formData, session1_personality: e.target.value })}
+                          placeholder="例: 親切、理解がある、フレンドリー、忍耐強い"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          required
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* セッション2の設定 */}
+                  {activeAiTab === 'session2' && (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            AIの役割 <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={formData.session2_ai_role}
+                            onChange={(e) => setFormData({ ...formData, session2_ai_role: e.target.value })}
+                            placeholder="例: フレンドリーな同僚"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            ユーザーの役割 <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={formData.session2_user_role}
+                            onChange={(e) => setFormData({ ...formData, session2_user_role: e.target.value })}
+                            placeholder="例: 美容師・スタッフ"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          シチュエーション <span className="text-red-500">*</span>
+                        </label>
+                        <textarea
+                          value={formData.session2_situation}
+                          onChange={(e) => setFormData({ ...formData, session2_situation: e.target.value })}
+                          rows={2}
+                          placeholder="例: 休憩時間の雑談。最近の仕事やトレンドについて話す。"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          AIの性格特性 <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.session2_personality}
+                          onChange={(e) => setFormData({ ...formData, session2_personality: e.target.value })}
+                          placeholder="例: 明るい、フレンドリー、リラックス、協力的"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          required
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* セッション3の設定 */}
+                  {activeAiTab === 'session3' && (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            AIの役割 <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={formData.session3_ai_role}
+                            onChange={(e) => setFormData({ ...formData, session3_ai_role: e.target.value })}
+                            placeholder="例: スタイリストのマネージャー"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            ユーザーの役割 <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={formData.session3_user_role}
+                            onChange={(e) => setFormData({ ...formData, session3_user_role: e.target.value })}
+                            placeholder="例: 美容師・スタッフ"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          シチュエーション <span className="text-red-500">*</span>
+                        </label>
+                        <textarea
+                          value={formData.session3_situation}
+                          onChange={(e) => setFormData({ ...formData, session3_situation: e.target.value })}
+                          rows={2}
+                          placeholder="例: 業務報告会議で今週の成果を発表。改善点を話し合う。"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          AIの性格特性 <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.session3_personality}
+                          onChange={(e) => setFormData({ ...formData, session3_personality: e.target.value })}
+                          placeholder="例: プロフェッショナル、支援的、経験豊富、指導的"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          required
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
