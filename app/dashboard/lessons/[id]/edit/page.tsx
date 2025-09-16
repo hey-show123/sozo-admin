@@ -98,7 +98,7 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
     session3_ai_role: '',
     session3_user_role: '',
     session3_situation: '',
-    session3_personality: ''
+    session3_personality: '',
     // フィードバック設定
     ai_feedback_style: 'encouraging',
     ai_evaluation_focus: '文法,語彙,流暢さ,適切さ',
