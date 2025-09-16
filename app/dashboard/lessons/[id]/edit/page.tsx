@@ -13,6 +13,11 @@ interface KeyPhrase {
   voice?: string
 }
 
+interface CharacterSettings {
+  name: string
+  voice: string
+}
+
 interface Dialogue {
   speaker: string
   text: string
@@ -60,6 +65,11 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
     ai: false
   })
   
+  const [characterSettings, setCharacterSettings] = useState<CharacterSettings[]>([
+    { name: 'Staff', voice: 'nova' },
+    { name: 'Customer', voice: 'alloy' }
+  ])
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -484,9 +494,12 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
 
   // Add Dialogue
   const addDialogue = () => {
+    // デフォルトで最初のキャラクター設定を使用
+    const defaultSpeaker = characterSettings[0]?.name || 'Staff'
+    const defaultVoice = characterSettings[0]?.voice || 'nova'
     setFormData({
       ...formData,
-      dialogues: [...formData.dialogues, { speaker: '', text: '', japanese: '', voice: 'nova', emotion: 'neutral' }]
+      dialogues: [...formData.dialogues, { speaker: defaultSpeaker, text: '', japanese: '', voice: defaultVoice, emotion: 'neutral' }]
     })
   }
 
@@ -789,64 +802,95 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
                 ダイアログ
                 {expandedSections.dialogues ? <ChevronUp /> : <ChevronDown />}
               </button>
-              
+
               {expandedSections.dialogues && (
                 <div className="space-y-4">
-                  {formData.dialogues.map((dialogue, index) => (
-                    <div key={index} className="border rounded-lg p-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                        <input
-                          type="text"
-                          placeholder="話者 (Staff/Customer等)"
-                          value={dialogue.speaker}
-                          onChange={(e) => updateDialogue(index, 'speaker', e.target.value)}
-                          className="px-3 py-2 border border-gray-300 rounded-lg"
-                        />
-                        <div className="relative">
-                          <input
-                            type="text"
-                            placeholder="感情表現 (例: friendly, excited)"
-                            value={dialogue.emotion || ''}
-                            onChange={(e) => updateDialogue(index, 'emotion', e.target.value)}
-                            className="px-3 py-2 border border-gray-300 rounded-lg w-full"
-                            title="英語で感情を記述: friendly, polite, happy, excited, calm, professional等"
-                          />
-                          <div className="absolute -bottom-5 left-0 text-xs text-gray-500">
-                            <a href="/docs/EMOTION_GUIDELINES.md" target="_blank" className="underline hover:text-blue-600">
-                              感情表現ガイド
-                            </a>
-                            : friendly, polite, happy, excited等
+                  {/* キャラクター設定セクション */}
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <h3 className="text-sm font-medium text-gray-700 mb-3">キャラクター設定</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {characterSettings.map((character, charIndex) => (
+                        <div key={charIndex} className="bg-white p-3 rounded-lg border border-blue-200">
+                          <div className="space-y-2">
+                            <div>
+                              <label className="block text-xs font-medium text-gray-600 mb-1">
+                                キャラクター{charIndex + 1}の名前
+                              </label>
+                              <input
+                                type="text"
+                                value={character.name}
+                                onChange={(e) => {
+                                  const updated = [...characterSettings]
+                                  updated[charIndex] = { ...updated[charIndex], name: e.target.value }
+                                  setCharacterSettings(updated)
+                                  // 既存のダイアログの話者名も更新
+                                  const oldName = characterSettings[charIndex].name
+                                  const newDialogues = formData.dialogues.map(d =>
+                                    d.speaker === oldName ? { ...d, speaker: e.target.value } : d
+                                  )
+                                  setFormData({ ...formData, dialogues: newDialogues })
+                                }}
+                                placeholder="例: Staff, Customer"
+                                className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-medium text-gray-600 mb-1">
+                                音声モデル
+                              </label>
+                              <select
+                                value={character.voice}
+                                onChange={(e) => {
+                                  const updated = [...characterSettings]
+                                  updated[charIndex] = { ...updated[charIndex], voice: e.target.value }
+                                  setCharacterSettings(updated)
+                                  // 既存のダイアログの音声も更新
+                                  const charName = character.name
+                                  const newDialogues = formData.dialogues.map(d =>
+                                    d.speaker === charName ? { ...d, voice: e.target.value } : d
+                                  )
+                                  setFormData({ ...formData, dialogues: newDialogues })
+                                }}
+                                className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
+                              >
+                                {VOICE_OPTIONS.map(option => (
+                                  <option key={option.value} value={option.value}>{option.label}</option>
+                                ))}
+                              </select>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
-                        <textarea
-                          placeholder="英語テキスト"
-                          value={dialogue.text}
-                          onChange={(e) => updateDialogue(index, 'text', e.target.value)}
-                          rows={2}
-                          className="px-3 py-2 border border-gray-300 rounded-lg"
-                        />
-                        <textarea
-                          placeholder="日本語訳"
-                          value={dialogue.japanese}
-                          onChange={(e) => updateDialogue(index, 'japanese', e.target.value)}
-                          rows={2}
-                          className="px-3 py-2 border border-gray-300 rounded-lg"
-                        />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <select
-                          value={dialogue.voice || 'nova'}
-                          onChange={(e) => updateDialogue(index, 'voice', e.target.value)}
-                          className="px-3 py-2 border border-gray-300 rounded-lg"
-                        >
-                          <option value="">音声なし</option>
-                          {VOICE_OPTIONS.map(option => (
-                            <option key={option.value} value={option.value}>{option.label}</option>
-                          ))}
-                        </select>
-                        <span className="text-sm text-gray-500">TTS: GPT-4o Mini</span>
+                      ))}
+                    </div>
+                    <p className="text-xs text-gray-600 mt-2">
+                      ※ ダイアログを追加する際、これらのキャラクター設定が自動的に適用されます
+                    </p>
+                  </div>
+
+                  {/* ダイアログ入力セクション */}
+                  {formData.dialogues.map((dialogue, index) => (
+                    <div key={index} className="border rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-4">
+                          <select
+                            value={dialogue.speaker}
+                            onChange={(e) => {
+                              const selectedChar = characterSettings.find(c => c.name === e.target.value)
+                              updateDialogue(index, 'speaker', e.target.value)
+                              if (selectedChar) {
+                                updateDialogue(index, 'voice', selectedChar.voice)
+                              }
+                            }}
+                            className="px-3 py-1 text-sm font-medium border border-gray-300 rounded-lg bg-gray-50"
+                          >
+                            {characterSettings.map(char => (
+                              <option key={char.name} value={char.name}>{char.name}</option>
+                            ))}
+                          </select>
+                          <span className="text-xs text-gray-500">
+                            音声: {VOICE_OPTIONS.find(v => v.value === dialogue.voice)?.label || 'なし'}
+                          </span>
+                        </div>
                         <button
                           type="button"
                           onClick={() => removeDialogue(index)}
@@ -855,8 +899,45 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">英語テキスト</label>
+                          <textarea
+                            placeholder="Hello, how can I help you today?"
+                            value={dialogue.text}
+                            onChange={(e) => updateDialogue(index, 'text', e.target.value)}
+                            rows={2}
+                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">日本語訳</label>
+                          <textarea
+                            placeholder="こんにちは、今日はどのようなご用件でしょうか？"
+                            value={dialogue.japanese}
+                            onChange={(e) => updateDialogue(index, 'japanese', e.target.value)}
+                            rows={2}
+                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="mt-2">
+                        <label className="block text-xs font-medium text-gray-600 mb-1">
+                          感情表現（オプション）
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="例: friendly, polite, excited, calm"
+                          value={dialogue.emotion || ''}
+                          onChange={(e) => updateDialogue(index, 'emotion', e.target.value)}
+                          className="w-full px-3 py-1 text-sm border border-gray-300 rounded-lg"
+                        />
+                      </div>
                     </div>
                   ))}
+
                   <button
                     type="button"
                     onClick={addDialogue}
