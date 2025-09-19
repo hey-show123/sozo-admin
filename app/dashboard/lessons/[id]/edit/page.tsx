@@ -175,7 +175,7 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
           session3_ai_role: aiPromptData?.session_3_role || '',
           session3_user_role: aiPromptData?.session_3_user_role || '',
           session3_situation: aiPromptData?.session_3_situation || '',
-          session3_personality: aiPromptData?.session_3_personality || ',
+          session3_personality: aiPromptData?.session_3_personality || '',
           // フィードバック設定（デフォルト値）
           ai_feedback_style: 'encouraging',
           ai_evaluation_focus: '文法,語彙,流暢さ,適切さ',
@@ -207,8 +207,8 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
             }
           }
           
-          // AI設定を読み込み
-          if (content.session_settings) {
+          // AI設定を読み込み（フラット構造が空の場合のみフォールバック）
+          if (content.session_settings && !baseFormData['session1_ai_role']) {
             // 各セッションの設定を個別に読み込み
             const session1 = content.session_settings['session_1']
             const session2 = content.session_settings['session_2']
@@ -232,7 +232,7 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
               baseFormData['session3_situation'] = session3.situation || ''
               baseFormData['session3_personality'] = (session3.personality_traits || []).join('、')
             }
-          } else if (content.character_setting) {
+          } else if (content.character_setting && !baseFormData['session1_ai_role']) {
             // 既存データ形式から読み込み
             const role = content.character_setting.role || ''
             const background = content.character_setting.background || ''
