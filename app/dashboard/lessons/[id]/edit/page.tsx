@@ -163,19 +163,19 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
           // AI設定 - 3セッション個別設定
           // セッション1
           session1_ai_role: aiPromptData?.session_1_role || '',
-          session1_user_role: aiPromptData?.user_role || '',
+          session1_user_role: aiPromptData?.session_1_user_role || '',
           session1_situation: aiPromptData?.session_1_situation || '',
           session1_personality: aiPromptData?.session_1_personality || '',
           // セッション2
           session2_ai_role: aiPromptData?.session_2_role || '',
-          session2_user_role: aiPromptData?.user_role || '',
+          session2_user_role: aiPromptData?.session_2_user_role || '',
           session2_situation: aiPromptData?.session_2_situation || '',
           session2_personality: aiPromptData?.session_2_personality || '',
           // セッション3
           session3_ai_role: aiPromptData?.session_3_role || '',
-          session3_user_role: aiPromptData?.user_role || '',
+          session3_user_role: aiPromptData?.session_3_user_role || '',
           session3_situation: aiPromptData?.session_3_situation || '',
-          session3_personality: aiPromptData?.session_3_personality || '',
+          session3_personality: aiPromptData?.session_3_personality || ',
           // フィードバック設定（デフォルト値）
           ai_feedback_style: 'encouraging',
           ai_evaluation_focus: '文法,語彙,流暢さ,適切さ',
@@ -405,15 +405,17 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
       }),
         // 新しいフラット形式のカラムにも保存（3セッション個別設定）
         session_1_role: formData.session1_ai_role,
+        session_1_user_role: formData.session1_user_role,
         session_1_situation: formData.session1_situation,
         session_1_personality: formData.session1_personality,
         session_1_difficulty_level: 'standard',
-        user_role: formData.session1_user_role,  // セッション1のuser_roleを共通で使用
         session_2_role: formData.session2_ai_role,
+        session_2_user_role: formData.session2_user_role,
         session_2_situation: formData.session2_situation,
         session_2_personality: formData.session2_personality,
         session_2_difficulty_level: 'standard',
         session_3_role: formData.session3_ai_role,
+        session_3_user_role: formData.session3_user_role,
         session_3_situation: formData.session3_situation,
         session_3_personality: formData.session3_personality,
         session_3_difficulty_level: 'standard',
