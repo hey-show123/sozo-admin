@@ -148,6 +148,21 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
         .maybeSingle()
 
       if (data) {
+        console.log('=== AI Prompt Load Debug ===');
+        console.log('aiPromptData:', aiPromptData);
+        if (aiPromptData) {
+          console.log('Session 1 Role from DB:', aiPromptData.session_1_role);
+          console.log('Session 1 User Role from DB:', aiPromptData.session_1_user_role);
+          console.log('Session 1 Personality from DB:', aiPromptData.session_1_personality);
+          console.log('Session 2 Role from DB:', aiPromptData.session_2_role);
+          console.log('Session 2 User Role from DB:', aiPromptData.session_2_user_role);
+          console.log('Session 2 Personality from DB:', aiPromptData.session_2_personality);
+          console.log('Session 3 Role from DB:', aiPromptData.session_3_role);
+          console.log('Session 3 User Role from DB:', aiPromptData.session_3_user_role);
+          console.log('Session 3 Personality from DB:', aiPromptData.session_3_personality);
+        }
+        console.log('===========================');
+
         // 基本データを設定
         const baseFormData: any = {
           title: data.title || '',
@@ -354,6 +369,17 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
       console.log('Update successful:', data)
 
       // AIプロンプト設定を保存（3セッション個別設定）
+      console.log('=== AI Prompt Save Debug ===');
+      console.log('Session 1 AI Role:', formData.session1_ai_role);
+      console.log('Session 1 User Role:', formData.session1_user_role);
+      console.log('Session 1 Personality:', formData.session1_personality);
+      console.log('Session 2 AI Role:', formData.session2_ai_role);
+      console.log('Session 2 User Role:', formData.session2_user_role);
+      console.log('Session 2 Personality:', formData.session2_personality);
+      console.log('Session 3 AI Role:', formData.session3_ai_role);
+      console.log('Session 3 User Role:', formData.session3_user_role);
+      console.log('Session 3 Personality:', formData.session3_personality);
+      console.log('===========================');
       const aiPromptData = {
         lesson_id: lessonId,
         activity_type: 'ai_conversation',
@@ -437,11 +463,13 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
       
       if (existingAiData) {
         // 更新
+        console.log('Updating existing AI prompt with ID:', existingAiData.id);
+        console.log('AI Prompt Data being saved:', JSON.stringify(aiPromptData, null, 2));
         const { error: promptError } = await supabase
           .from('lesson_ai_prompts')
           .update(aiPromptData)
           .eq('id', existingAiData.id)
-        
+
         if (promptError) {
           console.error('Error updating AI prompts:', promptError)
         } else {
