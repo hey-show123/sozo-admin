@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { ArrowLeft, Save, Loader2, Upload, X, Image } from 'lucide-react'
 import { createClient } from '../../../../lib/supabase'
 import { CURRICULUM_CATEGORIES } from '../../../../lib/constants/categories'
+import { DIFFICULTY_OPTIONS } from '../../../../lib/constants/difficulty-levels'
 
 export default function NewCoursePage() {
   const router = useRouter()
@@ -215,9 +216,11 @@ export default function NewCoursePage() {
                 onChange={(e) => setFormData({ ...formData, difficulty_level: parseInt(e.target.value) })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               >
-                <option value={1}>初級</option>
-                <option value={2}>中級</option>
-                <option value={3}>上級</option>
+                {DIFFICULTY_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
             </div>
 

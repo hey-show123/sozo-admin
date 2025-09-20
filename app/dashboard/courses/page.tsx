@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Plus, Edit, Trash2, BookOpen, Loader2, Search } from 'lucide-react'
 import { createClient } from '../../../lib/supabase'
 import { getCategoryLabel } from '../../../lib/constants/categories'
+import { getDifficultyLabel, getDifficultyColor } from '../../../lib/constants/difficulty-levels'
 
 interface Course {
   id: string
@@ -73,23 +74,6 @@ export default function CoursesPage() {
     }
   }
 
-  const getDifficultyLabel = (level: number) => {
-    switch (level) {
-      case 1: return '初級'
-      case 2: return '中級'
-      case 3: return '上級'
-      default: return '未設定'
-    }
-  }
-
-  const getDifficultyColor = (level: number) => {
-    switch (level) {
-      case 1: return 'bg-green-100 text-green-800'
-      case 2: return 'bg-yellow-100 text-yellow-800'
-      case 3: return 'bg-red-100 text-red-800'
-      default: return 'bg-gray-100 text-gray-800'
-    }
-  }
 
   const filteredCourses = courses.filter(course =>
     course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
