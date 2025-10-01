@@ -3,17 +3,14 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { 
-  BookOpen, 
-  GraduationCap, 
-  Users, 
+import {
+  BookOpen,
+  GraduationCap,
+  Users,
   Settings,
   Menu,
   X,
-  Home,
-  Sparkles,
-  Zap,
-  AlignLeft
+  Home
 } from 'lucide-react'
 
 export default function DashboardLayout({
@@ -29,7 +26,6 @@ export default function DashboardLayout({
     { href: '/dashboard/lessons', icon: BookOpen, label: 'レッスン管理' },
     { href: '/dashboard/courses', icon: GraduationCap, label: 'カリキュラム管理' },
     { href: '/dashboard/users', icon: Users, label: 'ユーザー管理' },
-    { href: '/dashboard/ai-settings', icon: Sparkles, label: 'AI設定' },
   ]
 
   return (

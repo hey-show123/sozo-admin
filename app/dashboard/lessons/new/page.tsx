@@ -1,20 +1,17 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useState, Suspense } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Save, Loader2 } from 'lucide-react'
 import { createClient } from '../../../../lib/supabase'
 
 function NewLessonForm() {
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const moduleId = searchParams.get('module_id')
   const [loading, setLoading] = useState(false)
   const [isComposing, setIsComposing] = useState(false)
   const [formData, setFormData] = useState({
     title: '',
-    module_id: moduleId || '',
     display_order: 1,
     is_published: false,
     vocabulary_items: [],
@@ -24,12 +21,6 @@ function NewLessonForm() {
     application_practice: {},
     sample_dialogues: []
   })
-
-  useEffect(() => {
-    if (moduleId) {
-      setFormData(prev => ({ ...prev, module_id: moduleId }))
-    }
-  }, [moduleId])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -42,7 +33,6 @@ function NewLessonForm() {
         .from('lessons')
         .insert([{
           title: formData.title,
-          module_id: formData.module_id || null,
           display_order: formData.display_order,
           is_published: formData.is_published,
           vocabulary_items: formData.vocabulary_items,
@@ -113,20 +103,6 @@ function NewLessonForm() {
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
               placeholder="例: 基本的な挨拶"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="module_id" className="block text-sm font-medium text-gray-700 mb-2">
-              モジュールID
-            </label>
-            <input
-              type="text"
-              id="module_id"
-              value={formData.module_id}
-              onChange={(e) => setFormData({ ...formData, module_id: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-              placeholder="モジュールのUUID（オプション）"
             />
           </div>
 
